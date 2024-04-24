@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class SubscriptionBoxController {
     @GetMapping("/Subscription-Box-Admin")
     public String homePage() {
-        return "SubscriptionBoxAdmin";
+        return "SubscriptionBoxAdmin Display";
     }
 }
