@@ -2,7 +2,9 @@ package id.ac.ui.cs.advprog.snackscription_subscriptionbox.model;
 
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Items;
@@ -37,5 +39,7 @@ public class SubscriptionBox {
         this.dateCreated = dateCreated;
     }
 
-    // Getters and setters
+    public SubscriptionBox() {
+
+    }
 }
