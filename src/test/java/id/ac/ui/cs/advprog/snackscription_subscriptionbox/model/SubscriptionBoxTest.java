@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 
 
-    public class SubscriptionBoxTests {
+    public class SubscriptionBoxTest {
 
         private SubscriptionBox box;
         private List<Integer> validPrices;
