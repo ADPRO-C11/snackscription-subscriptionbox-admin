@@ -1,13 +1,15 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.service;
 
-import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
-
 import java.util.List;
 
-public interface SubscriptionBoxService {
-    public SubscriptionBox create(SubscriptionBox SubscriptionBox);
-    public List<SubscriptionBox> findAll();
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 
-    SubscriptionBox edit(String id);
-    // Add any other service methods required by your application.
+public interface SubscriptionBoxService {
+    public SubscriptionBox addBox(SubscriptionBox subscriptionBox);
+    public SubscriptionBox editBox(String id, SubscriptionBox subscriptionBox);
+    public SubscriptionBox deleteBox(String id);
+    public List<SubscriptionBox> viewAll();
+    public String viewDetails(String boxId);
+    public List<SubscriptionBox> filterByPrice(int price);
+    // public List<SubscriptionBox> filterByRating(int rating);
 }

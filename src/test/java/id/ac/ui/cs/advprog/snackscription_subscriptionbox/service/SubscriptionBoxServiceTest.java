@@ -68,10 +68,5 @@ public class SubscriptionBoxServiceTest {
         assertEquals(1, boxes.size());
     }
 
-    // Rating not implemented yet
-    /*
-    @Test
-    public void testFilterByRating() {
-    }
-    */
+
 }
