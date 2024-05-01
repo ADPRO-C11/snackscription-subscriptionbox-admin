@@ -16,17 +16,27 @@ public class SubscriptionBoxRepository {
     private List<SubscriptionBox> filteredBoxesByRating = new ArrayList<>();
 
     public SubscriptionBox addBox(SubscriptionBox box) {
-
+        subscriptionBoxes.add(box);
         return box;
     }
 
     public SubscriptionBox deleteBox(String id) {
-
+        for (SubscriptionBox subscriptionBox : subscriptionBoxes) {
+            if (subscriptionBox.getId().equals(id)) {
+                subscriptionBoxes.remove(subscriptionBox);
+                return subscriptionBox;
+            }
+        }
         return null;
     }
 
     public SubscriptionBox editBox(String id, SubscriptionBox box) {
-
+        for (SubscriptionBox subscriptionBox : subscriptionBoxes) {
+            if (subscriptionBox.getId().equals(id)) {
+                subscriptionBox = box;
+                return subscriptionBox;
+            }
+        }
         return null;
     }
 
@@ -35,10 +45,22 @@ public class SubscriptionBoxRepository {
     }
 
     public String viewDetails(String boxId) {
-
+        for (SubscriptionBox subscriptionBox : subscriptionBoxes) {
+            if (subscriptionBox.getId().equals(boxId)) {
+                return subscriptionBox.getName();
+            }
+        }
         return null;
     }
 
     public List<SubscriptionBox> filterByPrice(int price) {
-        return null;}
+        List<SubscriptionBox> filteredBoxes = new ArrayList<>();
+        for (SubscriptionBox subscriptionBox : subscriptionBoxes) {
+            if (subscriptionBox.getPrice() == price) {
+                filteredBoxes.add(subscriptionBox);
+            }
+        }
+        filteredBoxesByPrice = filteredBoxes;
+        return filteredBoxesByPrice;
+    }
 }
