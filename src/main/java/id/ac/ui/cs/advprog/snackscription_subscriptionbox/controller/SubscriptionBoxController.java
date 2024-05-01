@@ -13,6 +13,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/subscription-box")
 @CrossOrigin(origins = "*")
+
+
 public class SubscriptionBoxController {
     @Autowired
     private SubscriptionBoxService subscriptionBoxService;
