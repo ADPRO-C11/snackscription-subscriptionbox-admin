@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class SubscriptionBoxTest {
-    List<Item> items;
+    List<Items> items;
     SubscriptionBox subscriptionBox;
     @BeforeEach
     public void setUp() {
@@ -20,15 +20,10 @@ public class SubscriptionBoxTest {
         this.subscriptionBox.setType("MTH");
         this.subscriptionBox.setPrice(100000);
         this.items = new ArrayList<>();
-        Item item1 = new Item();
-        item1.setId(UUID.randomUUID().toString());
-        item1.setName("Item1");
-        item1.setQuantity(1);
+        Items item1 = new Items();
+
         items.add(item1);
-        Item item2 = new Item();
-        item2.setId(UUID.randomUUID().toString());
-        item2.setName("Item2");
-        item2.setQuantity(2);
+        Items item2 = new Items();
         items.add(item2);
         this.subscriptionBox.setItems(items);
     }
