@@ -28,7 +28,9 @@ public class SubscriptionBoxRepositoryTest {
     @Test
     public void testDeleteBox() {
         SubscriptionBox box = new SubscriptionBox();
-        SubscriptionBox deletedBox = subscriptionBoxRepository.deleteBox(box);
+        box.setId("1");
+        subscriptionBoxRepository.addBox(box);
+        SubscriptionBox deletedBox = subscriptionBoxRepository.deleteBox(box.getId());
         assertNotNull(deletedBox);
     }
 
