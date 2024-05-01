@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.snackscription_subscriptionbox;
+package id.ac.ui.cs.advprog.snackscription_subscriptionbox.model;
 
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import org.junit.jupiter.api.BeforeEach;
