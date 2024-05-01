@@ -1,6 +1,6 @@
-package id.ac.ui.cs.advprog.snackscription_subscriptionbox.model;
+package id.ac.ui.cs.advprog.snackscription_subscriptionbox;
 
-
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,16 +20,8 @@ public class SubscriptionBoxTest {
         this.subscriptionBox.setType("MTH");
         this.subscriptionBox.setPrice(100000);
         this.items = new ArrayList<>();
-        Item item1 = new Item();
-        item1.setId(UUID.randomUUID().toString());
-        item1.setName("Item1");
-        item1.setQuantity(1);
-        items.add(item1);
-        Item item2 = new Item();
-        item2.setId(UUID.randomUUID().toString());
-        item2.setName("Item2");
-        item2.setQuantity(2);
-        items.add(item2);
+        items.add(new Item("aa229d97-3f69-4d6c-b40b-29f909429364", "item1", 1));
+        items.add(new Item("02e41cc8-358d-4609-a082-23affafa8e05", "item2", 2));
         this.subscriptionBox.setItems(items);
     }
 
