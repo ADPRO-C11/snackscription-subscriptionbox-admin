@@ -3,24 +3,42 @@ package id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository;
 
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import org.springframework.stereotype.Repository;
-
-
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-
 
 @Repository
 public class SubscriptionBoxRepository {
-    private List<SubscriptionBox> SubscriptionBoxData = new ArrayList<>();
 
-    public SubscriptionBox create(SubscriptionBox SubscriptionBox) {
-        SubscriptionBoxData.add(SubscriptionBox);
-        return SubscriptionBox;
+    private List<SubscriptionBox> subscriptionBoxes = new ArrayList<>();
+    private List<SubscriptionBox> filteredBoxesByPrice = new ArrayList<>();
+    private List<SubscriptionBox> filteredBoxesByRating = new ArrayList<>();
+
+    public SubscriptionBox addBox(SubscriptionBox box) {
+
+        return box;
     }
 
-    public Iterator<SubscriptionBox> findAll() {
-        return SubscriptionBoxData.iterator();
+    public SubscriptionBox deleteBox(String id) {
+
+        return null;
     }
-    // Add more methods as needed for your application.
+
+    public SubscriptionBox editBox(String id, SubscriptionBox box) {
+
+        return null;
+    }
+
+    public List<SubscriptionBox> viewAll() {
+        return subscriptionBoxes;
+    }
+
+    public String viewDetails(String boxId) {
+
+        return null;
+    }
+
+    public List<SubscriptionBox> filterByPrice(int price) {
+        return null;}
 }
