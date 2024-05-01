@@ -12,13 +12,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/subscription-box")
+@CrossOrigin(origins = "*")
 public class SubscriptionBoxController {
     @Autowired
     private SubscriptionBoxService subscriptionBoxService;
     String createHTML = "userCreate";
     @GetMapping("../")
     public String createUserPage(Model model) {
-        return "<h1>Subscription box and Item Management sudah berhasil!</h1>";
+        return "<h1>Subscription Box Management sudah berhasil!</h1>";
     }
 
     @PostMapping("/create")

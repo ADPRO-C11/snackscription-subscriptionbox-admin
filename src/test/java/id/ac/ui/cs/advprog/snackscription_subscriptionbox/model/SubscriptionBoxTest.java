@@ -17,7 +17,7 @@ public class SubscriptionBoxTest {
         this.subscriptionBox = new SubscriptionBox();
         this.subscriptionBox.setId("b060669f-4047-47ee-9d0f-1b4a123a104a");
         this.subscriptionBox.setName("BOX1");
-        this.subscriptionBox.setType("MTH");
+        this.subscriptionBox.setType("MONTHLY");
         this.subscriptionBox.setPrice(100000);
         this.items = new ArrayList<>();
         Items item1 = new Items();
@@ -40,7 +40,7 @@ public class SubscriptionBoxTest {
 
     @Test
     public void testGetType() {
-        assertEquals("MTH", subscriptionBox.getType());
+        assertEquals("MONTHLY", subscriptionBox.getType());
     }
 
     @Test
