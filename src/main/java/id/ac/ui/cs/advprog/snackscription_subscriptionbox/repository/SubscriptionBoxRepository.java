@@ -13,7 +13,7 @@ public class SubscriptionBoxRepository {
 
     private List<SubscriptionBox> subscriptionBoxes = new ArrayList<>();
     private List<SubscriptionBox> filteredBoxesByPrice = new ArrayList<>();
-    private List<SubscriptionBox> filteredBoxesByRating = new ArrayList<>();
+//    private List<SubscriptionBox> filteredBoxesByRating = new ArrayList<>();
 
     public SubscriptionBox addBox(SubscriptionBox box) {
         subscriptionBoxes.add(box);
@@ -30,15 +30,18 @@ public class SubscriptionBoxRepository {
         return null;
     }
 
-    public SubscriptionBox editBox(String id, SubscriptionBox box) {
-        for (SubscriptionBox subscriptionBox : subscriptionBoxes) {
-            if (subscriptionBox.getId().equals(id)) {
-                subscriptionBox = box;
-                return subscriptionBox;
+    public SubscriptionBox editBox(String id, SubscriptionBox updatedBox) {
+        for (SubscriptionBox box : subscriptionBoxes) {
+            if (box.getId().equals(id)) {
+                // Assuming the updatedBox object contains the updated fields
+                box.setName(updatedBox.getName());
+                box.setPrice(updatedBox.getPrice());
+                return box;  // Return the updated box
             }
         }
-        return null;
+        return null;  // Return null if no box with the given id was found
     }
+
 
     public List<SubscriptionBox> viewAll() {
         return subscriptionBoxes;

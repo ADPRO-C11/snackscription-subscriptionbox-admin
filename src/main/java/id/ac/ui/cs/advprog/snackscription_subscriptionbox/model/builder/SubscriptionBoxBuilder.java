@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository.SubscriptionBoxRepository;
 
+
 public class SubscriptionBoxBuilder {
     private SubscriptionBox subscriptionBox;
 
@@ -23,7 +24,9 @@ public class SubscriptionBoxBuilder {
     }
 
     public SubscriptionBoxBuilder setType(String type) {
-        subscriptionBox.setType(type);
+        if (!type.equals("MONTHLY") | !type.equals("QUARTERLY") | !type.equals("SEMI-ANNUALLY")){
+            throw new IllegalArgumentException("Invalid Type.");
+        }
         return this;
     }
 

@@ -36,7 +36,7 @@ public class SubscriptionBoxController {
         return ResponseEntity.ok(allBoxes);
     }
 
-    @GetMapping("/viewDetails/{boxId}")
+    @GetMapping("/view-details/{boxId}")
     public ResponseEntity<String> viewDetails(@PathVariable String boxId) {
         String boxName = subscriptionBoxService.viewDetails(boxId);
         return ResponseEntity.ok(boxName);
@@ -51,6 +51,9 @@ public class SubscriptionBoxController {
     @PutMapping("/edit/{boxId}")
     public ResponseEntity<SubscriptionBox> editBox(@PathVariable String boxId, @RequestBody SubscriptionBox subscriptionBox) {
         SubscriptionBox editedBox = subscriptionBoxService.editBox(boxId, subscriptionBox);
+        if (editedBox == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(editedBox);
     }
 

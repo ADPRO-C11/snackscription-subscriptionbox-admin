@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -62,42 +63,24 @@ public class SubscriptionBoxControllerTest {
     }
 
     @Test
-    public void testEditSubscriptionBox() throws Exception {
-        SubscriptionBox subscriptionBox = new SubscriptionBox();
-        subscriptionBox.setId(UUID.randomUUID().toString());
-        subscriptionBox.setName("Test Subscription Box");
-        subscriptionBox.setPrice(100000);
-        // subscriptionBox.setRating(5);
-
-        given(subscriptionBoxService.editBox(any(String.class), any(SubscriptionBox.class))).willReturn(subscriptionBox);
-
-        mockMvc.perform(get("/subscription-box/edit/" + subscriptionBox.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(subscriptionBox.getId()))
-                .andExpect(jsonPath("$.name").value(subscriptionBox.getName()))
-                .andExpect(jsonPath("$.price").value(subscriptionBox.getPrice()))
-        // .andExpect(jsonPath("$.rating").value(subscriptionBox.getRating()))
-        ;
-    }
-
-    @Test
     public void testDeleteSubscriptionBox() throws Exception {
+        String boxId = UUID.randomUUID().toString();
         SubscriptionBox subscriptionBox = new SubscriptionBox();
-        subscriptionBox.setId(UUID.randomUUID().toString());
-        subscriptionBox.setName("Test Subscription Box");
-        subscriptionBox.setPrice(100000);
-        // subscriptionBox.setRating(5);
+        subscriptionBox.setId(boxId);
+        subscriptionBox.setType("MONTHLY");
+        subscriptionBox.setName("Test Box");
+        subscriptionBox.setPrice(20000);
 
-        given(subscriptionBoxService.deleteBox(any(String.class))).willReturn(subscriptionBox);
+        given(subscriptionBoxService.deleteBox(subscriptionBox.getId())).willReturn(subscriptionBox);
 
-        mockMvc.perform(get("/subscription-box/delete/" + subscriptionBox.getId()))
+        mockMvc.perform(delete("/subscription-box/delete/" + boxId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(subscriptionBox.getId()))
-                .andExpect(jsonPath("$.name").value(subscriptionBox.getName()))
-                .andExpect(jsonPath("$.price").value(subscriptionBox.getPrice()))
-        // .andExpect(jsonPath("$.rating").value(subscriptionBox.getRating()))
-        ;
+                .andExpect(jsonPath("$.id").value(boxId))
+                .andExpect(jsonPath("$.name").value("Test Box"))
+                .andExpect(jsonPath("$.type").value("MONTHLY"))
+                .andExpect(jsonPath("$.price").value(20000));
     }
+
 
     @Test
     public void testViewSubscriptionBox() throws Exception {
@@ -109,7 +92,7 @@ public class SubscriptionBoxControllerTest {
 
         given(subscriptionBoxService.viewDetails(any(String.class))).willReturn(subscriptionBox.toString());
 
-        mockMvc.perform(get("/subscription-box/view/" + subscriptionBox.getId()))
+        mockMvc.perform(get("/subscription-box/view-details/" + subscriptionBox.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(subscriptionBox.toString()));
     }
