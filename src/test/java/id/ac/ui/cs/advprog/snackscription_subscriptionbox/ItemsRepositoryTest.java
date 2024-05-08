@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Items;
-public class ItemRepositoryTest {
+public class ItemsRepositoryTest {
 
-    private ItemRepository itemRepository;
+    private ItemsRepository itemsRepository;
 
     @BeforeEach
     public void setUp() {
@@ -19,13 +19,13 @@ public class ItemRepositoryTest {
     @Test
     public void testSaveItem() {
         // Create a new item
-        Item item = new Item();
+        Items item = new Item();
         item.setName("Test Item");
         item.setQuantity(10);
         item.setId("1");
 
         // Save the item to the repository
-        Item savedItem = itemRepository.createItem(item);
+        Item savedItem = itemsRepository.createItem(item);
 
         // Verify that the item is saved successfully
         assertNotNull(savedItem.getId());
@@ -108,10 +108,10 @@ public class ItemRepositoryTest {
         item.setQuantity(10);
 
         // Save the item to the repository
-        Item savedItem = itemRepository.createItem(item);
+        Item savedItem = itemsRepository.createItem(item);
 
         // Get all items from the repository
-        List<Item> items = itemRepository.getItems();
+        List<Item> items = itemsRepository.getItems();
 
         // Verify that the item is in the list of items
         assertTrue(items.contains(savedItem));
