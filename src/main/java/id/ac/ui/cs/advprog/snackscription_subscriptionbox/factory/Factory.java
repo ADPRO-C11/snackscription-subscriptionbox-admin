@@ -1,7 +1,11 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.factory;
 
-import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
 
-public abstract class Factory<S> {
-    public abstract SubscriptionBox create();
+import java.util.List;
+
+public interface Factory <T> {
+    T create();
+
+    T create(String id, String name, String type, int price, List<Item> items );
 }
