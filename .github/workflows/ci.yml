@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - master
-
+      - staging
 jobs:
   build:
     name: Build
