@@ -1,13 +1,14 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.model;
 
-import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
+
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
 
 public class SubscriptionBoxTest {
     List<Item> items;
@@ -43,6 +44,21 @@ public class SubscriptionBoxTest {
         assertEquals("MONTHLY", subscriptionBox.getType());
     }
 
+    @Test
+    public void testCreateInvalidType(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            SubscriptionBox subscriptionBoxTest = new SubscriptionBox(subscriptionBox.getName(), "Daily", subscriptionBox.getPrice(), subscriptionBox.getItems());
+        });
+
+    }
+
+    @Test
+    public void testInvalidPrice(){
+        assertThrows(IllegalArgumentException.class, () -> {
+           subscriptionBox.setPrice(-1);
+        });
+
+    }
     @Test
     public void testGetPrice() {
         assertEquals(100000, subscriptionBox.getPrice());

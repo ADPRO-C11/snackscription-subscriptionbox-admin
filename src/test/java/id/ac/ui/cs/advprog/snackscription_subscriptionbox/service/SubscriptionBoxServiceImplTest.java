@@ -1,24 +1,25 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.service;
-
-import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository.SubscriptionBoxRepository;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.service.SubscriptionBoxServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class SubscriptionBoxServiceImplTest {
+class SubscriptionBoxServiceImplTest {
 
     @Mock
     private SubscriptionBoxRepository subscriptionBoxRepository;
@@ -26,98 +27,174 @@ public class SubscriptionBoxServiceImplTest {
     @InjectMocks
     private SubscriptionBoxServiceImpl subscriptionBoxService;
 
-    private SubscriptionBox box1, box2;
-    private Item item1, item2;
+    private SubscriptionBox subscriptionBox;
 
     @BeforeEach
     void setUp() {
-        // Set up SubscriptionBox and Items
-        item1 = new Item();
-        item1.setName("Chocolate Bar");
-
-
-        item2 = new Item();
-        item2.setName("Face Mask");
-
-        List<Item> items1 = new ArrayList<>();
-        items1.add(item1);
-        List<Item> items2 = new ArrayList<>();
-        items2.add(item2);
-
-        box1 = new SubscriptionBox();
-        box1.setId("1");
-        box1.setName("Basic Box");
-        box1.setType("MONTHLY");
-        box1.setPrice(100);
-        box1.setItems(items1);
-
-        box2 = new SubscriptionBox();
-        box2.setId("2");
-        box2.setName("Premium Box");
-        box2.setType("QUARTERLY");
-        box2.setPrice(200);
-        box2.setItems(items2);
+        subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null);
+        subscriptionBox.setId("1");
     }
 
     @Test
-    public void testAddBox() {
-        when(subscriptionBoxRepository.addBox(box1)).thenReturn(box1);
-        SubscriptionBox result = subscriptionBoxService.addBox(box1);
-        assertEquals(box1, result);
-        verify(subscriptionBoxRepository).addBox(box1);
+    void testSave() throws ExecutionException, InterruptedException {
+        when(subscriptionBoxRepository.save(subscriptionBox)).thenReturn(subscriptionBox);
+
+        CompletableFuture<SubscriptionBox> future = subscriptionBoxService.save(subscriptionBox);
+        SubscriptionBox result = future.get();
+
+        assertEquals(subscriptionBox, result);
+        verify(subscriptionBoxRepository, times(1)).save(subscriptionBox);
     }
 
     @Test
-    public void testEditBox() {
-        SubscriptionBox updatedBox = new SubscriptionBox();
-        updatedBox.setId("1");
-        updatedBox.setName("Updated Basic Box");
-        updatedBox.setType("Monthly");
-        updatedBox.setPrice(150);
-        updatedBox.setItems(new ArrayList<>(box1.getItems()));
+    void testFindById() throws ExecutionException, InterruptedException {
+        when(subscriptionBoxRepository.findById("1")).thenReturn(Optional.of(subscriptionBox));
 
-        when(subscriptionBoxRepository.editBox("1", updatedBox)).thenReturn(updatedBox);
-        SubscriptionBox result = subscriptionBoxService.editBox("1", updatedBox);
-        assertEquals("Updated Basic Box", result.getName());
-        assertEquals(150, result.getPrice());
-        verify(subscriptionBoxRepository).editBox("1", updatedBox);
+        CompletableFuture<Optional<SubscriptionBox>> future = subscriptionBoxService.findById("1");
+        Optional<SubscriptionBox> result = future.get();
+
+        assertTrue(result.isPresent());
+        assertEquals(subscriptionBox, result.get());
+        verify(subscriptionBoxRepository, times(1)).findById("1");
     }
 
     @Test
-    public void testDeleteBox() {
-        when(subscriptionBoxRepository.deleteBox("1")).thenReturn(box1);
-        SubscriptionBox result = subscriptionBoxService.deleteBox("1");
-        assertEquals(box1, result);
-        verify(subscriptionBoxRepository).deleteBox("1");
+    void testFindByIdInvalidId() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            subscriptionBoxService.findById("").get();
+        });
+        verify(subscriptionBoxRepository, never()).findById(anyString());
     }
 
     @Test
-    public void testViewAll() {
-        List<SubscriptionBox> boxes = new ArrayList<>();
-        boxes.add(box1);
-        boxes.add(box2);
-        when(subscriptionBoxRepository.viewAll()).thenReturn(boxes);
-        List<SubscriptionBox> result = subscriptionBoxService.viewAll();
-        assertEquals(2, result.size());
-        verify(subscriptionBoxRepository).viewAll();
-    }
+    void testFindAll() throws ExecutionException, InterruptedException {
+        List<SubscriptionBox> subscriptionBoxes = Arrays.asList(subscriptionBox);
+        when(subscriptionBoxRepository.findAll()).thenReturn(subscriptionBoxes);
 
-    @Test
-    public void testViewDetails() {
-        when(subscriptionBoxRepository.viewDetails("1")).thenReturn("Basic Box");
-        String result = subscriptionBoxService.viewDetails("1");
-        assertEquals("Basic Box", result);
-        verify(subscriptionBoxRepository).viewDetails("1");
-    }
+        CompletableFuture<List<SubscriptionBox>> future = subscriptionBoxService.findAll();
+        List<SubscriptionBox> result = future.get();
 
-    @Test
-    public void testFilterByPrice() {
-        List<SubscriptionBox> filteredBoxes = new ArrayList<>();
-        filteredBoxes.add(box1);
-        when(subscriptionBoxRepository.filterByPrice(100)).thenReturn(filteredBoxes);
-        List<SubscriptionBox> result = subscriptionBoxService.filterByPrice(100);
         assertEquals(1, result.size());
-        assertTrue(result.contains(box1));
-        verify(subscriptionBoxRepository).filterByPrice(100);
+        assertEquals(subscriptionBox, result.get(0));
+        verify(subscriptionBoxRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testUpdate() throws ExecutionException, InterruptedException {
+        when(subscriptionBoxRepository.update(subscriptionBox)).thenReturn(subscriptionBox);
+
+        CompletableFuture<SubscriptionBox> future = subscriptionBoxService.update(subscriptionBox);
+        SubscriptionBox result = future.get();
+
+        assertEquals(subscriptionBox, result);
+        verify(subscriptionBoxRepository, times(1)).update(subscriptionBox);
+    }
+
+    @Test
+    void testUpdateInvalidBox() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            subscriptionBoxService.update(null).get();
+        });
+        verify(subscriptionBoxRepository, never()).update(any());
+    }
+
+    @Test
+    void testDelete() throws ExecutionException, InterruptedException {
+        when(subscriptionBoxRepository.findById("1")).thenReturn(Optional.of(subscriptionBox));
+        doNothing().when(subscriptionBoxRepository).delete("1");
+
+        CompletableFuture<Void> future = subscriptionBoxService.delete("1");
+        future.get();
+
+        verify(subscriptionBoxRepository, times(1)).findById("1");
+        verify(subscriptionBoxRepository, times(1)).delete("1");
+    }
+
+    @Test
+    void testDeleteInvalidId() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            subscriptionBoxService.delete("").get();
+        });
+        verify(subscriptionBoxRepository, never()).delete(anyString());
+    }
+
+    @Test
+    void testDeleteSubscriptionNotFound() {
+        when(subscriptionBoxRepository.findById("1")).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            subscriptionBoxService.delete("1").get();
+        });
+
+        verify(subscriptionBoxRepository, times(1)).findById("1");
+        verify(subscriptionBoxRepository, never()).delete(anyString());
+    }
+
+    @Test
+    void testFindByPriceLessThan() throws ExecutionException, InterruptedException {
+        List<SubscriptionBox> subscriptionBoxes = Arrays.asList(subscriptionBox);
+        when(subscriptionBoxRepository.findByPriceLessThan(150)).thenReturn(subscriptionBoxes);
+
+        CompletableFuture<List<SubscriptionBox>> future = subscriptionBoxService.findByPriceLessThan(150);
+        List<SubscriptionBox> result = future.get();
+
+        assertEquals(1, result.size());
+        assertEquals(subscriptionBox, result.get(0));
+        verify(subscriptionBoxRepository, times(1)).findByPriceLessThan(150);
+    }
+
+    @Test
+    void testFindByPriceGreaterThan() throws ExecutionException, InterruptedException {
+        List<SubscriptionBox> subscriptionBoxes = Arrays.asList(subscriptionBox);
+        when(subscriptionBoxRepository.findByPriceGreaterThan(50)).thenReturn(subscriptionBoxes);
+
+        CompletableFuture<List<SubscriptionBox>> future = subscriptionBoxService.findByPriceGreaterThan(50);
+        List<SubscriptionBox> result = future.get();
+
+        assertEquals(1, result.size());
+        assertEquals(subscriptionBox, result.get(0));
+        verify(subscriptionBoxRepository, times(1)).findByPriceGreaterThan(50);
+    }
+
+    @Test
+    void testFindByPriceEquals() throws ExecutionException, InterruptedException {
+        List<SubscriptionBox> subscriptionBoxes = Arrays.asList(subscriptionBox);
+        when(subscriptionBoxRepository.findByPriceEquals(100)).thenReturn(subscriptionBoxes);
+
+        CompletableFuture<List<SubscriptionBox>> future = subscriptionBoxService.findByPriceEquals(100);
+        List<SubscriptionBox> result = future.get();
+
+        assertEquals(1, result.size());
+        assertEquals(subscriptionBox, result.get(0));
+        verify(subscriptionBoxRepository, times(1)).findByPriceEquals(100);
+    }
+
+    @Test
+    void testFindByName() throws ExecutionException, InterruptedException {
+        List<SubscriptionBox> subscriptionBoxes = Arrays.asList(subscriptionBox);
+        when(subscriptionBoxRepository.findByName("Basic")).thenReturn(Optional.of(subscriptionBoxes));
+
+        CompletableFuture<Optional<List<SubscriptionBox>>> future = subscriptionBoxService.findByName("Basic");
+        Optional<List<SubscriptionBox>> result = future.get();
+
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().size());
+        assertEquals(subscriptionBox, result.get().get(0));
+        verify(subscriptionBoxRepository, times(1)).findByName("Basic");
+    }
+
+    @Test
+    void testFindDistinctNames() throws ExecutionException, InterruptedException {
+        List<String> names = Arrays.asList("Basic", "Premium");
+        when(subscriptionBoxRepository.findDistinctNames()).thenReturn(Optional.of(names));
+
+        CompletableFuture<Optional<List<String>>> future = subscriptionBoxService.findDistinctNames();
+        Optional<List<String>> result = future.get();
+
+        assertTrue(result.isPresent());
+        assertEquals(2, result.get().size());
+        assertTrue(result.get().contains("Basic"));
+        assertTrue(result.get().contains("Premium"));
+        verify(subscriptionBoxRepository, times(1)).findDistinctNames();
     }
 }

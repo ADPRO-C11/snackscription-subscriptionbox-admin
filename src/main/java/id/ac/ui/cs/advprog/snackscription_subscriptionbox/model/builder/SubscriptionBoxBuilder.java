@@ -24,10 +24,11 @@ public class SubscriptionBoxBuilder {
     }
 
     public SubscriptionBoxBuilder setType(String type) {
-        if (!type.equals("MONTHLY") | !type.equals("QUARTERLY") | !type.equals("SEMI-ANNUALLY")){
-            throw new IllegalArgumentException("Invalid Type.");
+        if (type.equals("MONTHLY") | type.equals("QUARTERLY") | type.equals("SEMI-ANNUALLY")){
+            return this;
+
         }
-        return this;
+        throw new IllegalArgumentException("Invalid Type.");
     }
 
     public SubscriptionBoxBuilder setPrice(int price) {

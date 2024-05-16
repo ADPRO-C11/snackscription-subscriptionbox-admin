@@ -1,65 +1,112 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.service.SubscriptionBoxService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/subscription-box")
-@CrossOrigin(origins = "*")
-
-
+@CrossOrigin(origins = "http://localhost:3000") // Change to specific origin if needed
 public class SubscriptionBoxController {
+
+    private final SubscriptionBoxService subscriptionBoxService;
+
     @Autowired
-    private SubscriptionBoxService subscriptionBoxService;
-    String createHTML = "userCreate";
-    @GetMapping("../")
-    public String createUserPage(Model model) {
-        return "<h1>Subscription Box Management sudah berhasil!</h1>";
+    public SubscriptionBoxController(SubscriptionBoxService subscriptionBoxService) {
+        this.subscriptionBoxService = subscriptionBoxService;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<SubscriptionBox> createSubscriptionBox(@RequestBody SubscriptionBox subscriptionBox, Model model) {
-        SubscriptionBox newBox = subscriptionBoxService.addBox(subscriptionBox);
-        return ResponseEntity.ok(newBox);
+    public CompletableFuture<ResponseEntity<SubscriptionBox>> createSubscriptionBox(@RequestBody SubscriptionBox subscriptionBox) {
+        return subscriptionBoxService.save(subscriptionBox)
+                .thenApply(ResponseEntity::ok)
+                .exceptionally(ex -> ResponseEntity.badRequest().build());
     }
 
-    @GetMapping("/viewAll")
-    public ResponseEntity<List<SubscriptionBox>> viewAll() {
-        List<SubscriptionBox> allBoxes = subscriptionBoxService.viewAll();
-        return ResponseEntity.ok(allBoxes);
+    @GetMapping("/list")
+    public CompletableFuture<ResponseEntity<List<SubscriptionBox>>> findAll() {
+        return subscriptionBoxService.findAll()
+                .thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/view-details/{boxId}")
-    public ResponseEntity<String> viewDetails(@PathVariable String boxId) {
-        String boxName = subscriptionBoxService.viewDetails(boxId);
-        return ResponseEntity.ok(boxName);
-    }
-
-    @DeleteMapping("/delete/{boxId}")
-    public ResponseEntity<SubscriptionBox> deleteBox(@PathVariable String boxId) {
-        SubscriptionBox deletedBox = subscriptionBoxService.deleteBox(boxId);
-        return ResponseEntity.ok(deletedBox);
-    }
-
-    @PutMapping("/edit/{boxId}")
-    public ResponseEntity<SubscriptionBox> editBox(@PathVariable String boxId, @RequestBody SubscriptionBox subscriptionBox) {
-        SubscriptionBox editedBox = subscriptionBoxService.editBox(boxId, subscriptionBox);
-        if (editedBox == null) {
-            return ResponseEntity.notFound().build();
+    @GetMapping("/{id}")
+    public CompletableFuture<ResponseEntity<SubscriptionBox>> findById(@PathVariable String id) {
+        try {
+            UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
-        return ResponseEntity.ok(editedBox);
+
+        return subscriptionBoxService.findById(id)
+                .thenApply(optionalSubscriptionBox ->
+                        optionalSubscriptionBox.map(ResponseEntity::ok)
+                                .orElse(ResponseEntity.notFound().build()));
     }
 
-    @GetMapping("/filterByPrice/{price}")
-    public ResponseEntity<List<SubscriptionBox>> filterByPrice(@PathVariable int price) {
-        List<SubscriptionBox> filteredBoxes = subscriptionBoxService.filterByPrice(price);
-        return ResponseEntity.ok(filteredBoxes);
+    @PatchMapping("/update")
+    public CompletableFuture<ResponseEntity<SubscriptionBox>> updateSubscriptionBox(@RequestBody SubscriptionBox subscriptionBox) {
+        if (subscriptionBox.getId() == null || subscriptionBox.getId().isEmpty()) {
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
+        }
+
+        return subscriptionBoxService.findById(subscriptionBox.getId())
+                .thenCompose(optionalSubscriptionBox -> {
+                    if (optionalSubscriptionBox.isEmpty()) {
+                        return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
+                    } else {
+                        return subscriptionBoxService.update(subscriptionBox)
+                                .thenApply(ResponseEntity::ok);
+                    }
+                });
+    }
+
+    @DeleteMapping("/{id}")
+    public CompletableFuture<ResponseEntity<String>> deleteSubscriptionBox(@PathVariable String id) {
+        try {
+            UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
+        }
+
+        return subscriptionBoxService.delete(id)
+                .thenApply(result -> ResponseEntity.ok("DELETE SUCCESS"))
+                .exceptionally(ex -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/price/less-than/{price}")
+    public CompletableFuture<ResponseEntity<List<SubscriptionBox>>> findByPriceLessThan(@PathVariable int price) {
+        return subscriptionBoxService.findByPriceLessThan(price)
+                .thenApply(ResponseEntity::ok);
+    }
+
+    @GetMapping("/price/greater-than/{price}")
+    public CompletableFuture<ResponseEntity<List<SubscriptionBox>>> findByPriceGreaterThan(@PathVariable int price) {
+        return subscriptionBoxService.findByPriceGreaterThan(price)
+                .thenApply(ResponseEntity::ok);
+    }
+
+    @GetMapping("/price/equals/{price}")
+    public CompletableFuture<ResponseEntity<List<SubscriptionBox>>> findByPriceEquals(@PathVariable int price) {
+        return subscriptionBoxService.findByPriceEquals(price)
+                .thenApply(ResponseEntity::ok);
+    }
+
+    @GetMapping("/name/{name}")
+    public CompletableFuture<ResponseEntity<Optional<List<SubscriptionBox>>>> findByName(@PathVariable String name) {
+        return subscriptionBoxService.findByName(name)
+                .thenApply(ResponseEntity::ok);
+    }
+
+    @GetMapping("/distinct-names")
+    public CompletableFuture<ResponseEntity<Optional<List<String>>>> findDistinctNames() {
+        return subscriptionBoxService.findDistinctNames()
+                .thenApply(ResponseEntity::ok);
     }
 }

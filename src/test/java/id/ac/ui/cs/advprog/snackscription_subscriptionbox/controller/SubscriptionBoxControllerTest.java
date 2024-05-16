@@ -1,33 +1,25 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.service.SubscriptionBoxService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.http.ResponseEntity;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-public class SubscriptionBoxControllerTest {
-
-    private MockMvc mockMvc;
+class SubscriptionBoxControllerTest {
 
     @Mock
     private SubscriptionBoxService subscriptionBoxService;
@@ -35,79 +27,158 @@ public class SubscriptionBoxControllerTest {
     @InjectMocks
     private SubscriptionBoxController subscriptionBoxController;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private SubscriptionBox subscriptionBox;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(subscriptionBoxController).build();
-    }
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
 
-    @Test
-    public void testCreateSubscriptionBox() throws Exception {
-        SubscriptionBox subscriptionBox = new SubscriptionBox();
+        subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null);
         subscriptionBox.setId(UUID.randomUUID().toString());
-        subscriptionBox.setName("Test Subscription Box");
-        subscriptionBox.setPrice(100000);
-        // subscriptionBox.setRating(5);
-
-        given(subscriptionBoxService.addBox(any(SubscriptionBox.class))).willReturn(subscriptionBox);
-
-        mockMvc.perform(post("/subscription-box/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subscriptionBox)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(subscriptionBox.getId()))
-                .andExpect(jsonPath("$.name").value(subscriptionBox.getName()))
-                .andExpect(jsonPath("$.price").value(subscriptionBox.getPrice()));
     }
 
     @Test
-    public void testDeleteSubscriptionBox() throws Exception {
-        String boxId = UUID.randomUUID().toString();
-        SubscriptionBox subscriptionBox = new SubscriptionBox();
-        subscriptionBox.setId(boxId);
-        subscriptionBox.setType("MONTHLY");
-        subscriptionBox.setName("Test Box");
-        subscriptionBox.setPrice(20000);
+    void testCreateSubscriptionBox() {
+        when(subscriptionBoxService.save(any(SubscriptionBox.class)))
+                .thenReturn(CompletableFuture.completedFuture(subscriptionBox));
 
-        given(subscriptionBoxService.deleteBox(subscriptionBox.getId())).willReturn(subscriptionBox);
+        CompletableFuture<ResponseEntity<SubscriptionBox>> result = subscriptionBoxController.createSubscriptionBox(subscriptionBox);
 
-        mockMvc.perform(delete("/subscription-box/delete/" + boxId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(boxId))
-                .andExpect(jsonPath("$.name").value("Test Box"))
-                .andExpect(jsonPath("$.type").value("MONTHLY"))
-                .andExpect(jsonPath("$.price").value(20000));
-    }
-
-
-    @Test
-    public void testViewSubscriptionBox() throws Exception {
-        SubscriptionBox subscriptionBox = new SubscriptionBox();
-        subscriptionBox.setId(UUID.randomUUID().toString());
-        subscriptionBox.setName("Test Subscription Box");
-        subscriptionBox.setPrice(100000);
-        // subscriptionBox.setRating(5);
-
-        given(subscriptionBoxService.viewDetails(any(String.class))).willReturn(subscriptionBox.toString());
-
-        mockMvc.perform(get("/subscription-box/view-details/" + subscriptionBox.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(subscriptionBox.toString()));
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.ok(subscriptionBox), result.join());
     }
 
     @Test
-    public void testViewAllSubscriptionBox() throws Exception {
-        mockMvc.perform(get("/subscription-box/viewAll/"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+    void testFindAll() {
+        List<SubscriptionBox> subscriptionBoxes = Arrays.asList(subscriptionBox);
+
+        when(subscriptionBoxService.findAll())
+                .thenReturn(CompletableFuture.completedFuture(subscriptionBoxes));
+
+        CompletableFuture<ResponseEntity<List<SubscriptionBox>>> result = subscriptionBoxController.findAll();
+
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.ok(subscriptionBoxes), result.join());
     }
 
     @Test
-    public void testFilterByPrice() throws Exception {
-        mockMvc.perform(get("/subscription-box/filterByPrice/100000"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+    void testFindById() {
+        when(subscriptionBoxService.findById(subscriptionBox.getId()))
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(subscriptionBox)));
+
+        CompletableFuture<ResponseEntity<SubscriptionBox>> result = subscriptionBoxController.findById(subscriptionBox.getId());
+
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.ok(subscriptionBox), result.join());
+    }
+
+    @Test
+    void testFindByIdInvalidId() {
+        String invalidId = "invalid_id";
+
+        CompletableFuture<ResponseEntity<SubscriptionBox>> result = subscriptionBoxController.findById(invalidId);
+
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.badRequest().build(), result.join());
+    }
+
+    @Test
+    void testUpdateSubscriptionBox() {
+        when(subscriptionBoxService.findById(subscriptionBox.getId()))
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(subscriptionBox)));
+        when(subscriptionBoxService.update(any(SubscriptionBox.class)))
+                .thenReturn(CompletableFuture.completedFuture(subscriptionBox));
+
+        CompletableFuture<ResponseEntity<SubscriptionBox>> result = subscriptionBoxController.updateSubscriptionBox(subscriptionBox);
+
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.ok(subscriptionBox), result.join());
+    }
+
+    @Test
+    void testDeleteSubscriptionBox() {
+        when(subscriptionBoxService.delete(subscriptionBox.getId()))
+                .thenReturn(CompletableFuture.completedFuture(null));
+
+        CompletableFuture<ResponseEntity<String>> result = subscriptionBoxController.deleteSubscriptionBox(subscriptionBox.getId());
+
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.ok("DELETE SUCCESS"), result.join());
+    }
+
+    @Test
+    void testFindByPriceLessThan() {
+        List<SubscriptionBox> subscriptionBoxes = Arrays.asList(subscriptionBox);
+
+        when(subscriptionBoxService.findByPriceLessThan(150))
+                .thenReturn(CompletableFuture.completedFuture(subscriptionBoxes));
+
+        CompletableFuture<ResponseEntity<List<SubscriptionBox>>> result = subscriptionBoxController.findByPriceLessThan(150);
+
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.ok(subscriptionBoxes), result.join());
+    }
+
+    @Test
+    void testFindByPriceGreaterThan() {
+        List<SubscriptionBox> subscriptionBoxes = Arrays.asList(subscriptionBox);
+
+        when(subscriptionBoxService.findByPriceGreaterThan(50))
+                .thenReturn(CompletableFuture.completedFuture(subscriptionBoxes));
+
+        CompletableFuture<ResponseEntity<List<SubscriptionBox>>> result = subscriptionBoxController.findByPriceGreaterThan(50);
+
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.ok(subscriptionBoxes), result.join());
+    }
+
+    @Test
+    void testFindByPriceEquals() {
+        List<SubscriptionBox> subscriptionBoxes = Arrays.asList(subscriptionBox);
+
+        when(subscriptionBoxService.findByPriceEquals(100))
+                .thenReturn(CompletableFuture.completedFuture(subscriptionBoxes));
+
+        CompletableFuture<ResponseEntity<List<SubscriptionBox>>> result = subscriptionBoxController.findByPriceEquals(100);
+
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.ok(subscriptionBoxes), result.join());
+    }
+
+    @Test
+    void testFindByName() {
+        List<SubscriptionBox> subscriptionBoxes = Arrays.asList(subscriptionBox);
+
+        when(subscriptionBoxService.findByName("Basic"))
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(subscriptionBoxes)));
+
+        CompletableFuture<ResponseEntity<Optional<List<SubscriptionBox>>>> result = subscriptionBoxController.findByName("Basic");
+
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.ok(Optional.of(subscriptionBoxes)), result.join());
+    }
+
+    @Test
+    void testFindDistinctNames() {
+        List<String> names = Arrays.asList("Basic", "Premium");
+
+        when(subscriptionBoxService.findDistinctNames())
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(names)));
+
+        CompletableFuture<ResponseEntity<Optional<List<String>>>> result = subscriptionBoxController.findDistinctNames();
+
+        assertNotNull(result);
+        assertTrue(result.isDone());
+        assertEquals(ResponseEntity.ok(Optional.of(names)), result.join());
     }
 }
