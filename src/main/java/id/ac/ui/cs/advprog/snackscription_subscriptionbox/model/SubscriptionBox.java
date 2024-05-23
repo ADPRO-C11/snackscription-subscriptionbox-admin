@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,6 +31,7 @@ public class SubscriptionBox {
             joinColumns = @JoinColumn(name = "subscriptionbox_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "item_id", referencedColumnName = "id")
     )
+    @JsonManagedReference
     List<Item> items;
     // Rating rating;
 
@@ -39,7 +41,7 @@ public class SubscriptionBox {
 
     public SubscriptionBox( String name, String type, int price, List<Item> items){
         this.id = UUID.randomUUID().toString();
-        this.name = name;
+        this.setName(name);
         this.setType(type);
         this.setPrice(price);
         this.items = items;
@@ -50,7 +52,7 @@ public class SubscriptionBox {
                 type.equalsIgnoreCase("quarterly") |
                 type.equalsIgnoreCase("semi-annual")
         ){
-            this.type = type;
+            this.type = type.toUpperCase();
         }
         else{
             throw new IllegalArgumentException("Invalid type");
@@ -58,7 +60,17 @@ public class SubscriptionBox {
 
 
     }
+    public void setName(String name) {
+        if (!name.contains("-")
+        ){
+            this.name = name;
+        }
+        else{
+            throw new IllegalArgumentException("Do not put '-' inside your name!");
+        }
 
+
+    }
     public void setPrice(int price) {
         if (price >0){
             this.price = price;

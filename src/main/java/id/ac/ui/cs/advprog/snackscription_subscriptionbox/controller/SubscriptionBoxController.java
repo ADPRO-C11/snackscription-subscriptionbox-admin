@@ -1,5 +1,8 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.controller;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.DTOMapper;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.service.SubscriptionBoxService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +16,11 @@ import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/subscription-box")
-@CrossOrigin(origins = "http://localhost:3000") // Change to specific origin if needed
+@CrossOrigin(origins = "*") // Change to specific origin if needed
 public class SubscriptionBoxController {
 
     private final SubscriptionBoxService subscriptionBoxService;
+    private static final Logger logger = LoggerFactory.getLogger(SubscriptionBoxController.class);
 
     @Autowired
     public SubscriptionBoxController(SubscriptionBoxService subscriptionBoxService) {
@@ -24,11 +28,13 @@ public class SubscriptionBoxController {
     }
 
     @PostMapping("/create")
-    public CompletableFuture<ResponseEntity<SubscriptionBox>> createSubscriptionBox(@RequestBody SubscriptionBox subscriptionBox) {
+    public CompletableFuture<ResponseEntity<SubscriptionBox>> createSubscriptionBox(@RequestBody SubscriptionBoxDTO subscriptionBoxDTO) {
+        SubscriptionBox subscriptionBox = DTOMapper.convertDTOtoModel(subscriptionBoxDTO);
         return subscriptionBoxService.save(subscriptionBox)
                 .thenApply(ResponseEntity::ok)
                 .exceptionally(ex -> ResponseEntity.badRequest().build());
     }
+
 
     @GetMapping("/list")
     public CompletableFuture<ResponseEntity<List<SubscriptionBox>>> findAll() {
@@ -36,8 +42,25 @@ public class SubscriptionBoxController {
                 .thenApply(ResponseEntity::ok);
     }
 
+    @PatchMapping("/update")
+    public CompletableFuture<ResponseEntity<SubscriptionBox>> updateSubscriptionBox(@RequestBody SubscriptionBoxDTO subscriptionBoxDTO) {
+        if (subscriptionBoxDTO.getId() == null || subscriptionBoxDTO.getId().isEmpty()) {
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
+        }
+
+        return subscriptionBoxService.findById(subscriptionBoxDTO.getId())
+                .thenCompose(optionalSubscriptionBox -> {
+                    if (optionalSubscriptionBox.isEmpty()) {
+                        return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
+                    } else {
+                        return subscriptionBoxService.update(subscriptionBoxDTO)
+                                .thenApply(ResponseEntity::ok);
+                    }
+                });
+    }
+
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<SubscriptionBox>> findById(@PathVariable String id) {
+    public CompletableFuture<ResponseEntity<SubscriptionBoxDTO>> findById(@PathVariable String id) {
         try {
             UUID.fromString(id);
         } catch (IllegalArgumentException e) {
@@ -50,22 +73,6 @@ public class SubscriptionBoxController {
                                 .orElse(ResponseEntity.notFound().build()));
     }
 
-    @PatchMapping("/update")
-    public CompletableFuture<ResponseEntity<SubscriptionBox>> updateSubscriptionBox(@RequestBody SubscriptionBox subscriptionBox) {
-        if (subscriptionBox.getId() == null || subscriptionBox.getId().isEmpty()) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
-        }
-
-        return subscriptionBoxService.findById(subscriptionBox.getId())
-                .thenCompose(optionalSubscriptionBox -> {
-                    if (optionalSubscriptionBox.isEmpty()) {
-                        return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
-                    } else {
-                        return subscriptionBoxService.update(subscriptionBox)
-                                .thenApply(ResponseEntity::ok);
-                    }
-                });
-    }
 
     @DeleteMapping("/{id}")
     public CompletableFuture<ResponseEntity<String>> deleteSubscriptionBox(@PathVariable String id) {
@@ -81,25 +88,28 @@ public class SubscriptionBoxController {
     }
 
     @GetMapping("/price/less-than/{price}")
-    public CompletableFuture<ResponseEntity<List<SubscriptionBox>>> findByPriceLessThan(@PathVariable int price) {
+    public CompletableFuture<ResponseEntity<List<SubscriptionBoxDTO>>> findByPriceLessThan(@PathVariable int price) {
         return subscriptionBoxService.findByPriceLessThan(price)
                 .thenApply(ResponseEntity::ok);
     }
 
     @GetMapping("/price/greater-than/{price}")
-    public CompletableFuture<ResponseEntity<List<SubscriptionBox>>> findByPriceGreaterThan(@PathVariable int price) {
+    public CompletableFuture<ResponseEntity<List<SubscriptionBoxDTO>>> findByPriceGreaterThan(@PathVariable int price) {
         return subscriptionBoxService.findByPriceGreaterThan(price)
                 .thenApply(ResponseEntity::ok);
     }
 
     @GetMapping("/price/equals/{price}")
-    public CompletableFuture<ResponseEntity<List<SubscriptionBox>>> findByPriceEquals(@PathVariable int price) {
+    public CompletableFuture<ResponseEntity<List<SubscriptionBoxDTO>>> findByPriceEquals(@PathVariable int price) {
         return subscriptionBoxService.findByPriceEquals(price)
                 .thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/name/{name}")
-    public CompletableFuture<ResponseEntity<Optional<List<SubscriptionBox>>>> findByName(@PathVariable String name) {
+    @GetMapping("/name/{nameURL}")
+    public CompletableFuture<ResponseEntity<Optional<List<SubscriptionBoxDTO>>>> findByName(@PathVariable String nameURL) {
+//        logger.info("Searching for SubscriptionBox with name before split: {}", nameURL);
+        String name = nameURL.replaceAll("-", " ");
+//        logger.info("Searching for SubscriptionBox with name: {}", name);
         return subscriptionBoxService.findByName(name)
                 .thenApply(ResponseEntity::ok);
     }
