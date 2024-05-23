@@ -28,10 +28,10 @@ class SubscriptionBoxFactoryTest {
         items.add(new Item());  // Assuming you have a constructor in Item class like this
         items.add(new Item());
 
-        SubscriptionBox subscriptionBox = subscriptionBoxFactory.create("1", "Deluxe Box", "Monthly", 150, items);
+        SubscriptionBox subscriptionBox = subscriptionBoxFactory.create("1", "Deluxe Box", "MONTHLY", 150, items);
 
         assertEquals("Deluxe Box", subscriptionBox.getName());
-        assertEquals("Monthly", subscriptionBox.getType());
+        assertEquals("MONTHLY", subscriptionBox.getType());
         assertEquals(150, subscriptionBox.getPrice());
         assertNotNull(subscriptionBox.getItems());
         assertEquals(2, subscriptionBox.getItems().size()); // Check that two items were added
