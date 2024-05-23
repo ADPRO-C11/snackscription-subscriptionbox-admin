@@ -7,11 +7,12 @@ import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 public class SubscriptionBoxDTO {
-    String id;
-    String name;
-    String type;
-    int price;
-    List<Item> items;
+    private String id;
+    private String name;
+    private String type;
+    private int price;
+    private List<ItemDTO> items;
 }
