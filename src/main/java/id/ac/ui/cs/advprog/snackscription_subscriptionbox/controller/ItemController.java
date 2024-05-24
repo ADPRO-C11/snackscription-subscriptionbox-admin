@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.snackscription_subscriptionbox.controller;
 
 
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 @RestController
 @RequestMapping("/items")
 public class ItemController {
@@ -58,4 +60,10 @@ public class ItemController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    public void setItems(List<Item> items) {
+        this.items.clear();
+        this.items.addAll(items);
+    }
+
 }
