@@ -36,6 +36,11 @@ public class ItemRepository {
         }
         return null;
     }
+
+    public List<Item> getAllItems() {
+        return new ArrayList<>(items);
+    }
+
 }
 
 
