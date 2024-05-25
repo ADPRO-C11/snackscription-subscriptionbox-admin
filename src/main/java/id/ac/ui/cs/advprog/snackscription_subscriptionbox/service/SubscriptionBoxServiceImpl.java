@@ -9,10 +9,13 @@ import java.util.stream.Collectors;
 
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.DTOMapper;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository.LogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.LogAdmin;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository.SubscriptionBoxRepository;
 
@@ -20,7 +23,8 @@ import id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository.Subscriptio
 public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
     @Autowired
     private SubscriptionBoxRepository subscriptionBoxRepository;
-
+   @Autowired
+    private LogRepository logRepository;
     @Override
     @Async
     public CompletableFuture<SubscriptionBox> save(SubscriptionBoxDTO subscriptionBoxDTO) {
@@ -62,7 +66,7 @@ public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
         if (subscriptionBoxDTO == null) {
             throw new IllegalArgumentException("Subscription cannot be null");
         }
-
+        CompletableFuture.runAsync(() -> logUpdateStatus(subscriptionBoxDTO.getId(), "UPDATE"));
         return subscriptionBoxRepository.findById(subscriptionBoxDTO.getId())
                 .map(subscriptionBox -> {
                     DTOMapper.updateSubscriptionBox(subscriptionBox, subscriptionBoxDTO);
@@ -82,6 +86,7 @@ public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
         if (subscriptionBoxRepository.findById(id).isEmpty()) {
             throw new IllegalArgumentException("Subscription Box not found");
         }
+        CompletableFuture.runAsync(() -> logUpdateStatus(id, "DELETE"));
         subscriptionBoxRepository.delete(id);
         return CompletableFuture.completedFuture(null);
     }
@@ -132,6 +137,21 @@ public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
         Optional<List<String>> distinctNames = subscriptionBoxRepository.findDistinctNames();
         return CompletableFuture.completedFuture(distinctNames);
     }
+
+
+    public void logUpdateStatus(String id, String status) {
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+        String logString = "Berhasil melakukan" +status + "terhadap Subscription Box dengan ID" + id + " pada " + date;
+
+        LogAdmin log = new LogAdmin(logString, id);
+
+        logRepository.save(log);
+    }
+    @Async
+    public CompletableFuture<List<LogAdmin>> getLog() {
+        return logRepository.findAllByOrderByDateDesc();
+    }
+
 
 
 }
