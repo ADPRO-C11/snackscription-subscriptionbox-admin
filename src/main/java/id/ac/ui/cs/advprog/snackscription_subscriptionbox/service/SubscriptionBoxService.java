@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.snackscription_subscriptionbox.service;
 import java.util.List;
 
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.LogAdmin;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import org.springframework.scheduling.annotation.Async;
 
@@ -29,7 +30,7 @@ public interface SubscriptionBoxService {
     CompletableFuture<Optional<List<SubscriptionBoxDTO>>> findByName(String name);
 
     CompletableFuture<Optional<List<String>>> findDistinctNames();
-
+    CompletableFuture<List<LogAdmin>> getLog();
 
 
 //    public SubscriptionBox addBox(SubscriptionBox subscriptionBox);

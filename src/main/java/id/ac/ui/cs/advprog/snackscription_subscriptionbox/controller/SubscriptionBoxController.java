@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.controller;
 
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.LogAdmin;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.utils.JWTUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 @RequestMapping("/subscription-box")
 @CrossOrigin(origins = "*") // Change to specific origin if needed
 public class SubscriptionBoxController {
+
     private final JWTUtils jwtUtils;
     private final SubscriptionBoxService subscriptionBoxService;
 
@@ -147,5 +149,13 @@ public class SubscriptionBoxController {
         validateToken(token);
         return subscriptionBoxService.findDistinctNames()
                 .thenApply(ResponseEntity::ok);
+    }
+
+    @GetMapping("/logs")
+    public CompletableFuture<ResponseEntity<List<LogAdmin>>> updateSubscriptionBox(@RequestHeader(value = "Authorization") String token) throws IllegalAccessException {
+        validateAdminOnly(token);
+        return subscriptionBoxService.getLog()
+                .thenApply(ResponseEntity::ok)
+                .exceptionally(ex -> ResponseEntity.notFound().build());
     }
 }
