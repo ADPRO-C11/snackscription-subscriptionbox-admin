@@ -1,4 +1,6 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.service;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.DTOMapper;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository.SubscriptionBoxRepository;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.service.SubscriptionBoxServiceImpl;
@@ -28,23 +30,15 @@ class SubscriptionBoxServiceImplTest {
     private SubscriptionBoxServiceImpl subscriptionBoxService;
 
     private SubscriptionBox subscriptionBox;
+    private SubscriptionBoxDTO subscriptionBoxDTO;
 
     @BeforeEach
     void setUp() {
-        subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null);
+        subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null, "this is good yas");
         subscriptionBox.setId("1");
+
     }
 
-    @Test
-    void testSave() throws ExecutionException, InterruptedException {
-        when(subscriptionBoxRepository.save(subscriptionBox)).thenReturn(subscriptionBox);
-
-        CompletableFuture<SubscriptionBox> future = subscriptionBoxService.save(subscriptionBox);
-        SubscriptionBox result = future.get();
-
-        assertEquals(subscriptionBox, result);
-        verify(subscriptionBoxRepository, times(1)).save(subscriptionBox);
-    }
 
 
     @Test

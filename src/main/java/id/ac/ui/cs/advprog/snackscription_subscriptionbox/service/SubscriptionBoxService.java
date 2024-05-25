@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public interface SubscriptionBoxService {
-    CompletableFuture<SubscriptionBox> save(SubscriptionBox subscriptionBox);
+    CompletableFuture<SubscriptionBox> save(SubscriptionBoxDTO subscriptionBoxDTO);
 
     CompletableFuture<Optional<SubscriptionBoxDTO>> findById(String id);
 

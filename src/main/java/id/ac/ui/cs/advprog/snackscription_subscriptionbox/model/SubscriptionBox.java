@@ -33,18 +33,22 @@ public class SubscriptionBox {
     )
     @JsonManagedReference
     List<Item> items;
+
+    @Column(name = "box_description")
+    String description;
     // Rating rating;
 
     public SubscriptionBox(){
         this.id = UUID.randomUUID().toString();
     }
 
-    public SubscriptionBox( String name, String type, int price, List<Item> items){
+    public SubscriptionBox( String name, String type, int price, List<Item> items, String description){
         this.id = UUID.randomUUID().toString();
         this.setName(name);
         this.setType(type);
         this.setPrice(price);
         this.items = items;
+        this.description = description;
     }
 
     public void setType(String type) {
