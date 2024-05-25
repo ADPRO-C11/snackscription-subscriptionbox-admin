@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,16 +28,33 @@ class SubscriptionBoxRepositoryTest {
 
     @Test
     void testSave() {
-        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null);
+        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, Collections.emptyList(), "Basic monthly subscription box");
+
+        // Mock the behavior for hasThreeSimilarNames
+        TypedQuery<SubscriptionBox> mockTypedQueryForSimilarNames = mock(TypedQuery.class);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) LIKE LOWER(:name)", SubscriptionBox.class))
+                .thenReturn(mockTypedQueryForSimilarNames);
+        when(mockTypedQueryForSimilarNames.setParameter("name", "%Basic%")).thenReturn(mockTypedQueryForSimilarNames);
+        when(mockTypedQueryForSimilarNames.getResultList()).thenReturn(Collections.emptyList()); // No similar names
+
+        // Mock the behavior for existsByNameAndType
+        TypedQuery<SubscriptionBox> mockTypedQueryForNameAndType = mock(TypedQuery.class);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) = LOWER(:name) AND LOWER(sb.type) = LOWER(:type)", SubscriptionBox.class))
+                .thenReturn(mockTypedQueryForNameAndType);
+        when(mockTypedQueryForNameAndType.setParameter("name", "Basic")).thenReturn(mockTypedQueryForNameAndType);
+        when(mockTypedQueryForNameAndType.setParameter("type", "MONTHLY")).thenReturn(mockTypedQueryForNameAndType); // Match exact case
+        when(mockTypedQueryForNameAndType.getResultList()).thenReturn(Collections.emptyList()); // No existing box with same name and type
+
         SubscriptionBox savedSubscriptionBox = subscriptionBoxRepository.save(subscriptionBox);
         assertEquals(subscriptionBox, savedSubscriptionBox);
         verify(entityManager, times(1)).persist(subscriptionBox);
     }
 
+
     @Test
     void testFindAll() {
-        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null);
-        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null);
+        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
+        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
         when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb", SubscriptionBox.class)).thenReturn(query);
@@ -51,7 +69,7 @@ class SubscriptionBoxRepositoryTest {
 
     @Test
     void testFindById() {
-        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null);
+        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
         subscriptionBox.setId("1");
 
         when(entityManager.find(SubscriptionBox.class, "1")).thenReturn(subscriptionBox);
@@ -73,7 +91,7 @@ class SubscriptionBoxRepositoryTest {
 
     @Test
     void testUpdate() {
-        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null);
+        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
 
         when(entityManager.merge(subscriptionBox)).thenReturn(subscriptionBox);
 
@@ -85,7 +103,7 @@ class SubscriptionBoxRepositoryTest {
 
     @Test
     void testDelete() {
-        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null);
+        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
         subscriptionBox.setId("1");
 
         when(entityManager.find(SubscriptionBox.class, "1")).thenReturn(subscriptionBox);
@@ -109,8 +127,8 @@ class SubscriptionBoxRepositoryTest {
 
     @Test
     void testFindByPriceLessThan() {
-        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null);
-        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null);
+        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
+        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
         when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb WHERE sb.price < :price", SubscriptionBox.class)).thenReturn(query);
@@ -128,8 +146,8 @@ class SubscriptionBoxRepositoryTest {
 
     @Test
     void testFindByPriceGreaterThan() {
-        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null);
-        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null);
+        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
+        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
         when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb WHERE sb.price > :price", SubscriptionBox.class)).thenReturn(query);
@@ -147,8 +165,8 @@ class SubscriptionBoxRepositoryTest {
 
     @Test
     void testFindByPriceEquals() {
-        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null);
-        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null);
+        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
+        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
         when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb WHERE sb.price = :price", SubscriptionBox.class)).thenReturn(query);
@@ -166,8 +184,8 @@ class SubscriptionBoxRepositoryTest {
 
     @Test
     void testFindByName() {
-        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic Box", "Monthly", 100, null);
-        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium Box", "Monthly", 200, null);
+        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic Box", "Monthly", 100, null, "Basic monthly subscription box");
+        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium Box", "Monthly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
         when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) LIKE LOWER(:name)", SubscriptionBox.class)).thenReturn(query);

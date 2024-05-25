@@ -11,12 +11,7 @@ public class SubscriptionBoxFactory implements Factory<SubscriptionBox> {
         return new SubscriptionBox();
     }
 
-    @Override
-    public SubscriptionBox create(String id, String name, int quantity) {
-        return null;
-    }
-
-    public SubscriptionBox create(String id, String name, String type, int price, List<Item> items ){
-        return  new SubscriptionBox( name, type, price, items);
+    public SubscriptionBox create(String id, String name, String type, int price, List<Item> items, String description){
+        return  new SubscriptionBox( name, type, price, items, description);
     }
 }

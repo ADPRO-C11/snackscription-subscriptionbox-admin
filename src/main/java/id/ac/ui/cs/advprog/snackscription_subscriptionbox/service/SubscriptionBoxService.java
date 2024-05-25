@@ -2,6 +2,8 @@ package id.ac.ui.cs.advprog.snackscription_subscriptionbox.service;
 
 import java.util.List;
 
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.LogAdmin;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import org.springframework.scheduling.annotation.Async;
 
@@ -9,26 +11,26 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public interface SubscriptionBoxService {
-    CompletableFuture<SubscriptionBox> save(SubscriptionBox subscriptionBox);
+    CompletableFuture<SubscriptionBox> save(SubscriptionBoxDTO subscriptionBoxDTO);
 
-    CompletableFuture<Optional<SubscriptionBox>> findById(String id);
+    CompletableFuture<Optional<SubscriptionBoxDTO>> findById(String id);
 
     CompletableFuture<List<SubscriptionBox>> findAll();
 
-    CompletableFuture<SubscriptionBox> update(SubscriptionBox subscriptionBox);
+    CompletableFuture<SubscriptionBox> update(SubscriptionBoxDTO subscriptionBoxDTO);
 
     CompletableFuture<Void> delete(String id);
 
-    CompletableFuture<List<SubscriptionBox>> findByPriceLessThan(int price);
+    CompletableFuture<List<SubscriptionBoxDTO>> findByPriceLessThan(int price);
 
-    CompletableFuture<List<SubscriptionBox>> findByPriceGreaterThan(int price);
+    CompletableFuture<List<SubscriptionBoxDTO>> findByPriceGreaterThan(int price);
 
-    CompletableFuture<List<SubscriptionBox>> findByPriceEquals(int price);
+    CompletableFuture<List<SubscriptionBoxDTO>> findByPriceEquals(int price);
 
-    CompletableFuture<Optional<List<SubscriptionBox>>> findByName(String name);
+    CompletableFuture<Optional<List<SubscriptionBoxDTO>>> findByName(String name);
 
     CompletableFuture<Optional<List<String>>> findDistinctNames();
-
+    CompletableFuture<List<LogAdmin>> getLog();
 
 
 //    public SubscriptionBox addBox(SubscriptionBox subscriptionBox);

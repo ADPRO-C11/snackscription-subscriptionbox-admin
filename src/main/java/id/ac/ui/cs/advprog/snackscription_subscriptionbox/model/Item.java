@@ -1,6 +1,5 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,15 +19,13 @@ public class Item {
     private int quantity;
 
     @ManyToMany(mappedBy = "items")
-    @JsonBackReference
     private List<SubscriptionBox> subscriptionBoxes;
+
+    public Item() {}
 
     public Item(String id, String name, int quantity) {
         this.id = id;
         this.name = name;
         this.quantity = quantity;
-    }
-
-    public Item() {
     }
 }
