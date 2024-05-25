@@ -3,7 +3,7 @@ name: GCD CI/CD Pipeline
 on:
   push:
     branches:
-      - master
+      - main
       - staging
 
 jobs:

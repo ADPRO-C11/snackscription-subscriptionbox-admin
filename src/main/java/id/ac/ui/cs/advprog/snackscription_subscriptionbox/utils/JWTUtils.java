@@ -13,7 +13,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
-
 @Component
 public class JWTUtils {
     private final SecretKey KEY;
