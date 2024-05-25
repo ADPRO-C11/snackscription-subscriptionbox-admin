@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - master
-      - staging
-      - subbox-management
+      - staging_new
 
 jobs:
   build:
