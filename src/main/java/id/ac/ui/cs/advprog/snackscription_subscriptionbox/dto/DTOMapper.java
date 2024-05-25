@@ -23,7 +23,8 @@ public class DTOMapper {
                 subscriptionBox.getName(),
                 subscriptionBox.getType(),
                 subscriptionBox.getPrice(),
-                itemDTOs
+                itemDTOs,
+                subscriptionBox.getDescription()
         );
     }
 
@@ -39,7 +40,8 @@ public class DTOMapper {
                 subscriptionBoxDTO.getName(),
                 subscriptionBoxDTO.getType(),
                 subscriptionBoxDTO.getPrice(),
-                items
+                items,
+                subscriptionBoxDTO.getDescription()
         );
     }
 
@@ -51,6 +53,7 @@ public class DTOMapper {
             subscriptionBox.setItems(items);
         });
         Optional.of(subscriptionBoxDTO.getPrice()).ifPresent(subscriptionBox::setPrice);
+        Optional.ofNullable(subscriptionBoxDTO.getDescription()).ifPresent(subscriptionBox::setDescription);
         return subscriptionBox;
     }
 

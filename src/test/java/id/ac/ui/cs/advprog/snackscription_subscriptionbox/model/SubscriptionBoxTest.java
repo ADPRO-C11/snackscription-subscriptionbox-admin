@@ -1,7 +1,5 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.model;
 
-
-import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class SubscriptionBoxTest {
     List<Item> items;
     SubscriptionBox subscriptionBox;
+
     @BeforeEach
     public void setUp() {
         this.subscriptionBox = new SubscriptionBox();
@@ -20,9 +18,10 @@ public class SubscriptionBoxTest {
         this.subscriptionBox.setName("BOX1");
         this.subscriptionBox.setType("MONTHLY");
         this.subscriptionBox.setPrice(100000);
+        this.subscriptionBox.setDescription("Basic monthly subscription box");
+
         this.items = new ArrayList<>();
         Item item1 = new Item();
-
         items.add(item1);
         Item item2 = new Item();
         items.add(item2);
@@ -45,20 +44,19 @@ public class SubscriptionBoxTest {
     }
 
     @Test
-    public void testCreateInvalidType(){
+    public void testCreateInvalidType() {
         assertThrows(IllegalArgumentException.class, () -> {
-            SubscriptionBox subscriptionBoxTest = new SubscriptionBox(subscriptionBox.getName(), "Daily", subscriptionBox.getPrice(), subscriptionBox.getItems());
+            SubscriptionBox subscriptionBoxTest = new SubscriptionBox("BOX2", "Daily", 100000, null, "Daily subscription box");
         });
-
     }
 
     @Test
-    public void testInvalidPrice(){
+    public void testInvalidPrice() {
         assertThrows(IllegalArgumentException.class, () -> {
-           subscriptionBox.setPrice(-1);
+            subscriptionBox.setPrice(-1);
         });
-
     }
+
     @Test
     public void testGetPrice() {
         assertEquals(100000, subscriptionBox.getPrice());
@@ -67,5 +65,16 @@ public class SubscriptionBoxTest {
     @Test
     public void testGetItems() {
         assertEquals(2, subscriptionBox.getItems().size());
+    }
+
+    @Test
+    public void testGetDescription() {
+        assertEquals("Basic monthly subscription box", subscriptionBox.getDescription());
+    }
+
+    @Test
+    public void testSetDescription() {
+        subscriptionBox.setDescription("Updated description");
+        assertEquals("Updated description", subscriptionBox.getDescription());
     }
 }

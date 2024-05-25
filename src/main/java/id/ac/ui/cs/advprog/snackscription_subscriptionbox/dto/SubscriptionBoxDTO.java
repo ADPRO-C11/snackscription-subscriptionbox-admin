@@ -15,4 +15,5 @@ public class SubscriptionBoxDTO {
     private String type;
     private int price;
     private List<ItemDTO> items;
+    private String description;
 }

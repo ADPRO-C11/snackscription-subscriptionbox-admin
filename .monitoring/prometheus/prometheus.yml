@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s # By default, scrape targets every 15 seconds.
+  evaluation_interval: 15s # By default, scrape rules every 15 seconds.
+
+scrape_configs:
+  - job_name: 'MyAppMetrics'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 3s
+    static_configs:
+      - targets: ['34.124.168.155:80']
+        labels:
+          application: 'snackscription_subscriptionbox'

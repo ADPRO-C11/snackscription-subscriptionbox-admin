@@ -24,8 +24,31 @@ public class SubscriptionBoxRepository {
 
     @Transactional
     public SubscriptionBox save(SubscriptionBox subscriptionBox) {
+        if (hasThreeSimilarNames(subscriptionBox.getName())) {
+            throw new IllegalArgumentException("Cannot save subscription box: more than 3 subscription boxes with similar names already exist.");
+        }
+        if (existsByNameAndType(subscriptionBox.getName(), subscriptionBox.getType())) {
+            throw new IllegalArgumentException("Cannot save subscription box: a subscription box with the same name and type already exists.");
+        }
         entityManager.persist(subscriptionBox);
         return subscriptionBox;
+    }
+
+    private boolean hasThreeSimilarNames(String name) {
+        String jpql = "SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) LIKE LOWER(:name)";
+        TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
+        query.setParameter("name", "%" + name + "%");
+        List<SubscriptionBox> result = query.getResultList();
+        return result.size() >= 3;
+    }
+
+    private boolean existsByNameAndType(String name, String type) {
+        String jpql = "SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) = LOWER(:name) AND LOWER(sb.type) = LOWER(:type)";
+        TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
+        query.setParameter("name", name);
+        query.setParameter("type", type);
+        List<SubscriptionBox> result = query.getResultList();
+        return !result.isEmpty();
     }
 
     @Transactional
