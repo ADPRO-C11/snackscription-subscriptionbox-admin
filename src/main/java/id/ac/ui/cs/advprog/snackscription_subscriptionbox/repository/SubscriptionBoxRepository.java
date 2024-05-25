@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository;
 
 
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import jakarta.transaction.TransactionScoped;
 import org.springframework.stereotype.Repository;
@@ -30,9 +31,24 @@ public class SubscriptionBoxRepository {
         if (existsByNameAndType(subscriptionBox.getName(), subscriptionBox.getType())) {
             throw new IllegalArgumentException("Cannot save subscription box: a subscription box with the same name and type already exists.");
         }
+
+        List<Item> attachedItems = new ArrayList<>();
+        for (Item item : subscriptionBox.getItems()) {
+            Item existingItem = entityManager.find(Item.class, item.getId());
+            if (existingItem != null) {
+                attachedItems.add(existingItem);
+            } else {
+                // Persist new item
+                entityManager.persist(item);
+                attachedItems.add(item);
+            }
+        }
+        subscriptionBox.setItems(attachedItems);
+
         entityManager.persist(subscriptionBox);
         return subscriptionBox;
     }
+
 
     private boolean hasThreeSimilarNames(String name) {
         String jpql = "SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) LIKE LOWER(:name)";
@@ -70,10 +86,16 @@ public class SubscriptionBoxRepository {
     }
 
     @Transactional
-    public void delete(String id){
-        SubscriptionBox subscription = findById(id)
+    public void delete(String id) {
+        SubscriptionBox subscriptionBox = findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Subscription Box ID not found"));
-        entityManager.remove(subscription);
+
+        // Clear the associations with items
+        subscriptionBox.getItems().clear();
+        entityManager.flush();
+
+        // Now remove the subscription box
+        entityManager.remove(subscriptionBox);
     }
 
     @Transactional

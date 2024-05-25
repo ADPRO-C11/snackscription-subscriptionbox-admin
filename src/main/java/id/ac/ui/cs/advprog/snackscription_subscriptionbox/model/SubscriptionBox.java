@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,7 +49,7 @@ public class SubscriptionBox {
         this.setName(name);
         this.setType(type);
         this.setPrice(price);
-        this.items = items;
+        this.items = (items == null) ? new ArrayList<>() : items;
         this.description = description;
     }
 

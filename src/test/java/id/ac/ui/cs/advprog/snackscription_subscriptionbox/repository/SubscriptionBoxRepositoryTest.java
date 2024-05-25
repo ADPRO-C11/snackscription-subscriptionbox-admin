@@ -28,7 +28,7 @@ class SubscriptionBoxRepositoryTest {
 
     @Test
     void testSave() {
-        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
+        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, Collections.emptyList(), "Basic monthly subscription box");
 
         // Mock the behavior for hasThreeSimilarNames
         TypedQuery<SubscriptionBox> mockTypedQueryForSimilarNames = mock(TypedQuery.class);
