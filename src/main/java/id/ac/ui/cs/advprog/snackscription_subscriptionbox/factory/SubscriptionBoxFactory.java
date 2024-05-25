@@ -11,7 +11,7 @@ public class SubscriptionBoxFactory implements Factory<SubscriptionBox> {
         return new SubscriptionBox();
     }
 
-    public SubscriptionBox create(String id, String name, String type, int price, List<Item> items ){
-        return  new SubscriptionBox( name, type, price, items);
+    public SubscriptionBox create(String id, String name, String type, int price, List<Item> items, String description){
+        return  new SubscriptionBox( name, type, price, items, description);
     }
 }

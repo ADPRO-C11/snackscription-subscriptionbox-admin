@@ -24,15 +24,39 @@ public class SubscriptionBoxRepository {
 
     @Transactional
     public SubscriptionBox save(SubscriptionBox subscriptionBox) {
+        if (hasThreeSimilarNames(subscriptionBox.getName())) {
+            throw new IllegalArgumentException("Cannot save subscription box: more than 3 subscription boxes with similar names already exist.");
+        }
+        if (existsByNameAndType(subscriptionBox.getName(), subscriptionBox.getType())) {
+            throw new IllegalArgumentException("Cannot save subscription box: a subscription box with the same name and type already exists.");
+        }
         entityManager.persist(subscriptionBox);
         return subscriptionBox;
     }
 
+    private boolean hasThreeSimilarNames(String name) {
+        String jpql = "SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) LIKE LOWER(:name)";
+        TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
+        query.setParameter("name", "%" + name + "%");
+        List<SubscriptionBox> result = query.getResultList();
+        return result.size() >= 3;
+    }
+
+    private boolean existsByNameAndType(String name, String type) {
+        String jpql = "SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) = LOWER(:name) AND LOWER(sb.type) = LOWER(:type)";
+        TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
+        query.setParameter("name", name);
+        query.setParameter("type", type);
+        List<SubscriptionBox> result = query.getResultList();
+        return !result.isEmpty();
+    }
+
     @Transactional
     public Optional<SubscriptionBox> findById(String id){
-        SubscriptionBox subscription = entityManager.find(SubscriptionBox.class, id);
-        return Optional.ofNullable(subscription);
+        SubscriptionBox subscriptionBox = entityManager.find(SubscriptionBox.class, id);
+        return Optional.ofNullable(subscriptionBox);
     }
+
     @Transactional
     public List<SubscriptionBox> findAll(){
         String jpql = "SELECT sb FROM SubscriptionBox sb";
@@ -93,59 +117,5 @@ public class SubscriptionBoxRepository {
         return Optional.ofNullable(result.isEmpty() ? null : result);
     }
 
-//    private List<SubscriptionBox> subscriptionBoxes = new ArrayList<>();
-//    private List<SubscriptionBox> filteredBoxesByPrice = new ArrayList<>();
-////    private List<SubscriptionBox> filteredBoxesByRating = new ArrayList<>();
-//
-//    public SubscriptionBox addBox(SubscriptionBox box) {
-//        subscriptionBoxes.add(box);
-//        return box;
-//    }
-//
-//    public SubscriptionBox deleteBox(String id) {
-//        for (SubscriptionBox subscriptionBox : subscriptionBoxes) {
-//            if (subscriptionBox.getId().equals(id)) {
-//                subscriptionBoxes.remove(subscriptionBox);
-//                return subscriptionBox;
-//            }
-//        }
-//        return null;
-//    }
-//
-//    public SubscriptionBox editBox(String id, SubscriptionBox updatedBox) {
-//        for (SubscriptionBox box : subscriptionBoxes) {
-//            if (box.getId().equals(id)) {
-//                // Assuming the updatedBox object contains the updated fields
-//                box.setName(updatedBox.getName());
-//                box.setPrice(updatedBox.getPrice());
-//                return box;  // Return the updated box
-//            }
-//        }
-//        return null;  // Return null if no box with the given id was found
-//    }
-//
-//
-//    public List<SubscriptionBox> viewAll() {
-//        return subscriptionBoxes;
-//    }
-//
-//    public String viewDetails(String boxId) {
-//        for (SubscriptionBox subscriptionBox : subscriptionBoxes) {
-//            if (subscriptionBox.getId().equals(boxId)) {
-//                return subscriptionBox.getName();
-//            }
-//        }
-//        return null;
-//    }
-//
-//    public List<SubscriptionBox> filterByPrice(int price) {
-//        List<SubscriptionBox> filteredBoxes = new ArrayList<>();
-//        for (SubscriptionBox subscriptionBox : subscriptionBoxes) {
-//            if (subscriptionBox.getPrice() == price) {
-//                filteredBoxes.add(subscriptionBox);
-//            }
-//        }
-//        filteredBoxesByPrice = filteredBoxes;
-//        return filteredBoxesByPrice;
-//    }
+
 }
