@@ -46,8 +46,7 @@ public class SubscriptionBoxController {
     }
 
     @GetMapping("")
-    public ResponseEntity<String> main(@RequestHeader(value = "Authorization") String token) throws IllegalAccessException {
-        validateToken(token);
+    public ResponseEntity<String> main(){
         return ResponseEntity.ok("Snackscription - SubscriptionBox Management API by ADMIN only!");
     }
 
