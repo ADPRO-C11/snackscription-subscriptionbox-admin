@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.factory;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
 
-import java.util.List;
 
 public class ItemFactory implements Factory<Item> {
     @Override
