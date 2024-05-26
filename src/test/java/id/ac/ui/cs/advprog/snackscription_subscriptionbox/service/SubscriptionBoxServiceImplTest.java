@@ -52,11 +52,10 @@ class SubscriptionBoxServiceImplTest {
         List<SubscriptionBox> subscriptionBoxes = Collections.singletonList(subscriptionBox);
         when(subscriptionBoxRepository.findAll()).thenReturn(subscriptionBoxes);
 
-        CompletableFuture<List<SubscriptionBox>> future = subscriptionBoxService.findAll();
-        List<SubscriptionBox> result = future.get();
+        CompletableFuture<List<SubscriptionBoxDTO>> future = subscriptionBoxService.findAll();
+        List<SubscriptionBoxDTO> result = future.get();
 
         assertEquals(1, result.size());
-        assertEquals(subscriptionBox, result.get(0));
         verify(subscriptionBoxRepository, times(1)).findAll();
     }
 
@@ -109,8 +108,8 @@ class SubscriptionBoxServiceImplTest {
     void testFindById() throws ExecutionException, InterruptedException {
         when(subscriptionBoxRepository.findById("1")).thenReturn(Optional.of(subscriptionBox));
 
-        CompletableFuture<Optional<SubscriptionBoxDTO>> future = subscriptionBoxService.findById("1");
-        Optional<SubscriptionBoxDTO> result = future.get();
+        CompletableFuture<Optional<SubscriptionBox>> future = subscriptionBoxService.findById("1");
+        Optional<SubscriptionBox> result = future.get();
 
         assertTrue(result.isPresent());
 

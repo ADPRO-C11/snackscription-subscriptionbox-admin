@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.controller;
 
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.DTOMapper;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.LogAdmin;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.utils.JWTUtils;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class SubscriptionBoxController {
     }
 
     @GetMapping("/list")
-    public CompletableFuture<ResponseEntity<List<SubscriptionBox>>> findAll(@RequestHeader(value = "Authorization") String token) throws IllegalAccessException {
+    public CompletableFuture<ResponseEntity<List<SubscriptionBoxDTO>>> findAll(@RequestHeader(value = "Authorization") String token) throws IllegalAccessException {
         validateToken(token);
         return subscriptionBoxService.findAll()
                 .thenApply(ResponseEntity::ok);
@@ -94,7 +95,8 @@ public class SubscriptionBoxController {
 
         return subscriptionBoxService.findById(id)
                 .thenApply(optionalSubscriptionBox ->
-                        optionalSubscriptionBox.map(ResponseEntity::ok)
+                        optionalSubscriptionBox
+                                .map(subscriptionBox -> ResponseEntity.ok(DTOMapper.convertModelToDto(subscriptionBox)))
                                 .orElse(ResponseEntity.notFound().build()));
     }
 
@@ -119,7 +121,6 @@ public class SubscriptionBoxController {
                 .thenApply(ResponseEntity::ok);
     }
 
-
     @GetMapping("/price/greater-than/{price}")
     public CompletableFuture<ResponseEntity<List<SubscriptionBoxDTO>>> findByPriceGreaterThan(@RequestHeader(value = "Authorization") String token, @PathVariable int price) throws IllegalAccessException {
         validateToken(token);
@@ -141,6 +142,7 @@ public class SubscriptionBoxController {
         return subscriptionBoxService.findByName(name)
                 .thenApply(ResponseEntity::ok);
     }
+
 
     @GetMapping("/distinct-names")
     public CompletableFuture<ResponseEntity<Optional<List<String>>>> findDistinctNames(@RequestHeader(value = "Authorization") String token) throws IllegalAccessException {

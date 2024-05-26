@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository;
 
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,7 +30,7 @@ class SubscriptionBoxRepositoryTest {
 
     @Test
     void testSave() {
-        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, Collections.emptyList(), "Basic monthly subscription box");
+        SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
 
         // Mock the behavior for hasThreeSimilarNames
         TypedQuery<SubscriptionBox> mockTypedQueryForSimilarNames = mock(TypedQuery.class);
@@ -50,20 +52,19 @@ class SubscriptionBoxRepositoryTest {
         verify(entityManager, times(1)).persist(subscriptionBox);
     }
 
-
     @Test
     void testFindAll() {
         SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
         SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
-        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb", SubscriptionBox.class)).thenReturn(query);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items", SubscriptionBox.class)).thenReturn(query);
         when(query.getResultList()).thenReturn(Arrays.asList(subscriptionBox1, subscriptionBox2));
 
         List<SubscriptionBox> subscriptionBoxes = subscriptionBoxRepository.findAll();
 
         assertEquals(2, subscriptionBoxes.size());
-        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb", SubscriptionBox.class);
+        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items", SubscriptionBox.class);
         verify(query, times(1)).getResultList();
     }
 
@@ -72,21 +73,32 @@ class SubscriptionBoxRepositoryTest {
         SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
         subscriptionBox.setId("1");
 
-        when(entityManager.find(SubscriptionBox.class, "1")).thenReturn(subscriptionBox);
+        TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.id = :id", SubscriptionBox.class)).thenReturn(query);
+        when(query.setParameter("id", "1")).thenReturn(query);
+        when(query.getResultStream()).thenReturn(Stream.of(subscriptionBox));
 
         Optional<SubscriptionBox> optionalSubscriptionBox = subscriptionBoxRepository.findById("1");
 
         assertEquals(Optional.of(subscriptionBox), optionalSubscriptionBox);
-        verify(entityManager, times(1)).find(SubscriptionBox.class, "1");
+        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.id = :id", SubscriptionBox.class);
+        verify(query, times(1)).setParameter("id", "1");
+        verify(query, times(1)).getResultStream();
     }
 
     @Test
     void testFindByIdSubscriptionNotFound() {
-        when(entityManager.find(SubscriptionBox.class, "nonexistentId")).thenReturn(null);
+        TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.id = :id", SubscriptionBox.class)).thenReturn(query);
+        when(query.setParameter("id", "nonexistentId")).thenReturn(query);
+        when(query.getResultStream()).thenReturn(Stream.empty());
 
-        assertNull(subscriptionBoxRepository.findById("nonexistentId").orElse(null));
+        Optional<SubscriptionBox> result = subscriptionBoxRepository.findById("nonexistentId");
 
-        verify(entityManager, times(1)).find(SubscriptionBox.class, "nonexistentId");
+        assertFalse(result.isPresent());
+        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.id = :id", SubscriptionBox.class);
+        verify(query, times(1)).setParameter("id", "nonexistentId");
+        verify(query, times(1)).getResultStream();
     }
 
     @Test
@@ -106,32 +118,41 @@ class SubscriptionBoxRepositoryTest {
         SubscriptionBox subscriptionBox = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
         subscriptionBox.setId("1");
 
-        when(entityManager.find(SubscriptionBox.class, "1")).thenReturn(subscriptionBox);
+        TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.id = :id", SubscriptionBox.class)).thenReturn(query);
+        when(query.setParameter("id", "1")).thenReturn(query);
+        when(query.getResultStream()).thenReturn(Stream.of(subscriptionBox));
+
         doNothing().when(entityManager).remove(subscriptionBox);
 
         subscriptionBoxRepository.delete("1");
 
-        verify(entityManager, times(1)).find(SubscriptionBox.class, "1");
+        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.id = :id", SubscriptionBox.class);
+        verify(query, times(1)).setParameter("id", "1");
+        verify(query, times(1)).getResultStream();
         verify(entityManager, times(1)).remove(subscriptionBox);
     }
 
     @Test
     void testDeleteSubscriptionNotFound() {
-        when(entityManager.find(SubscriptionBox.class, "1")).thenReturn(null);
+        TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.id = :id", SubscriptionBox.class)).thenReturn(query);
+        when(query.setParameter("id", "1")).thenReturn(query);
+        when(query.getResultStream()).thenReturn(Stream.empty());
 
         assertThrows(IllegalArgumentException.class, () -> subscriptionBoxRepository.delete("1"));
 
-        verify(entityManager, times(1)).find(SubscriptionBox.class, "1");
-        verify(entityManager, never()).remove(any());
+        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.id = :id", SubscriptionBox.class);
+        verify(query, times(1)).setParameter("id", "1");
+        verify(query, times(1)).getResultStream();
     }
 
     @Test
     void testFindByPriceLessThan() {
         SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
-        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
-        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb WHERE sb.price < :price", SubscriptionBox.class)).thenReturn(query);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.price < :price", SubscriptionBox.class)).thenReturn(query);
         when(query.setParameter("price", 150)).thenReturn(query);
         when(query.getResultList()).thenReturn(Arrays.asList(subscriptionBox1));
 
@@ -139,18 +160,17 @@ class SubscriptionBoxRepositoryTest {
 
         assertEquals(1, result.size());
         assertEquals(subscriptionBox1, result.get(0));
-        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb WHERE sb.price < :price", SubscriptionBox.class);
+        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.price < :price", SubscriptionBox.class);
         verify(query, times(1)).setParameter("price", 150);
         verify(query, times(1)).getResultList();
     }
 
     @Test
     void testFindByPriceGreaterThan() {
-        SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
         SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
-        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb WHERE sb.price > :price", SubscriptionBox.class)).thenReturn(query);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.price > :price", SubscriptionBox.class)).thenReturn(query);
         when(query.setParameter("price", 150)).thenReturn(query);
         when(query.getResultList()).thenReturn(Arrays.asList(subscriptionBox2));
 
@@ -158,7 +178,7 @@ class SubscriptionBoxRepositoryTest {
 
         assertEquals(1, result.size());
         assertEquals(subscriptionBox2, result.get(0));
-        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb WHERE sb.price > :price", SubscriptionBox.class);
+        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.price > :price", SubscriptionBox.class);
         verify(query, times(1)).setParameter("price", 150);
         verify(query, times(1)).getResultList();
     }
@@ -166,10 +186,9 @@ class SubscriptionBoxRepositoryTest {
     @Test
     void testFindByPriceEquals() {
         SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic", "Monthly", 100, null, "Basic monthly subscription box");
-        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium", "Monthly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
-        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb WHERE sb.price = :price", SubscriptionBox.class)).thenReturn(query);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.price = :price", SubscriptionBox.class)).thenReturn(query);
         when(query.setParameter("price", 100)).thenReturn(query);
         when(query.getResultList()).thenReturn(Arrays.asList(subscriptionBox1));
 
@@ -177,7 +196,7 @@ class SubscriptionBoxRepositoryTest {
 
         assertEquals(1, result.size());
         assertEquals(subscriptionBox1, result.get(0));
-        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb WHERE sb.price = :price", SubscriptionBox.class);
+        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.price = :price", SubscriptionBox.class);
         verify(query, times(1)).setParameter("price", 100);
         verify(query, times(1)).getResultList();
     }
@@ -188,7 +207,7 @@ class SubscriptionBoxRepositoryTest {
         SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium Box", "Monthly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
-        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) LIKE LOWER(:name)", SubscriptionBox.class)).thenReturn(query);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE LOWER(sb.name) LIKE LOWER(:name)", SubscriptionBox.class)).thenReturn(query);
         when(query.setParameter("name", "%box%")).thenReturn(query);
         when(query.getResultList()).thenReturn(Arrays.asList(subscriptionBox1, subscriptionBox2));
 
@@ -196,7 +215,7 @@ class SubscriptionBoxRepositoryTest {
 
         assertTrue(result.isPresent());
         assertEquals(2, result.get().size());
-        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) LIKE LOWER(:name)", SubscriptionBox.class);
+        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE LOWER(sb.name) LIKE LOWER(:name)", SubscriptionBox.class);
         verify(query, times(1)).setParameter("name", "%box%");
         verify(query, times(1)).getResultList();
     }

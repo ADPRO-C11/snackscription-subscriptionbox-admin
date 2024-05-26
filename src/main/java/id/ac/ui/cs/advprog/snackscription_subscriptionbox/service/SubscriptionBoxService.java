@@ -13,9 +13,9 @@ import java.util.concurrent.CompletableFuture;
 public interface SubscriptionBoxService {
     CompletableFuture<SubscriptionBox> save(SubscriptionBoxDTO subscriptionBoxDTO);
 
-    CompletableFuture<Optional<SubscriptionBoxDTO>> findById(String id);
+    CompletableFuture<Optional<SubscriptionBox>> findById(String id);
 
-    CompletableFuture<List<SubscriptionBox>> findAll();
+    CompletableFuture<List<SubscriptionBoxDTO>> findAll();
 
     CompletableFuture<SubscriptionBox> update(SubscriptionBoxDTO subscriptionBoxDTO);
 

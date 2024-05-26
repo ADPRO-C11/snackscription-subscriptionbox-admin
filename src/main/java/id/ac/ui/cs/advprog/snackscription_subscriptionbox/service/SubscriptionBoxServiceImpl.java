@@ -38,39 +38,36 @@ public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
 
     @Override
     @Async
-    public CompletableFuture<Optional<SubscriptionBoxDTO>> findById(String id) {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("ID cannot be null or empty");
-        }
-
-        return subscriptionBoxRepository.findById(id)
-                .map(subscriptionBox -> CompletableFuture.completedFuture(Optional.of(DTOMapper.convertModelToDto(subscriptionBox))))
-                .orElse(CompletableFuture.completedFuture(Optional.empty()));
-
+    public CompletableFuture<Optional<SubscriptionBox>> findById(String id) {
+        Optional<SubscriptionBox> subscriptionBox = subscriptionBoxRepository.findById(id);
+        return CompletableFuture.completedFuture(subscriptionBox);
     }
+
 
     @Override
     @Async
-    public CompletableFuture<List<SubscriptionBox>> findAll() {
+    public CompletableFuture<List<SubscriptionBoxDTO>> findAll() {
         List<SubscriptionBox> subscriptionBoxes = subscriptionBoxRepository.findAll();
-        return CompletableFuture.completedFuture(subscriptionBoxes);
+        List<SubscriptionBoxDTO> dtos = subscriptionBoxes.stream()
+                .map(DTOMapper::convertModelToDto)
+                .collect(Collectors.toList());
+        return CompletableFuture.completedFuture(dtos);
     }
 
     @Override
     @Async
     public CompletableFuture<SubscriptionBox> update(SubscriptionBoxDTO subscriptionBoxDTO) {
-
         if (subscriptionBoxDTO == null) {
             throw new IllegalArgumentException("Subscription cannot be null");
         }
-        CompletableFuture.runAsync(() -> logUpdateStatus(subscriptionBoxDTO.getId(), "UPDATE"));
+
         return subscriptionBoxRepository.findById(subscriptionBoxDTO.getId())
                 .map(subscriptionBox -> {
                     DTOMapper.updateSubscriptionBox(subscriptionBox, subscriptionBoxDTO);
-                    return CompletableFuture.completedFuture(subscriptionBoxRepository.update(subscriptionBox));
+                    subscriptionBox = subscriptionBoxRepository.update(subscriptionBox);
+                    return CompletableFuture.completedFuture(subscriptionBox);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Subscription isn't found"));
-
     }
 
     @Override
