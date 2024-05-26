@@ -35,6 +35,7 @@ val springBootVersion = "2.5.0"
 val micrometerVersion = "1.12.5"
 val dotenvVersion = "4.0.0"
 val jwtVersion = "0.12.5"
+val junitJupiterVersion = "5.9.1"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-logging")
@@ -57,6 +58,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    testImplementation ("org.springframework.boot:spring-boot-starter-test")
+    testImplementation ("org.springframework.security:spring-security-test")
 }
 
 
@@ -91,9 +94,6 @@ tasks.test{
 }
 
 tasks.jacocoTestReport {
-    classDirectories.setFrom(files(classDirectories.files.map {
-        fileTree(it) { exclude("**/*Application**") }
-    }))
     dependsOn(tasks.test) // tests are required to run before generating the report
     reports {
         xml.required.set(true)

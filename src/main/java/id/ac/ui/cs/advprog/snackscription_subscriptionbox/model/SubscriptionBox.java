@@ -51,6 +51,8 @@ public class SubscriptionBox {
         this.description = description;
     }
 
+
+
     public void setType(String type) {
         if (type.equalsIgnoreCase("monthly") |
                 type.equalsIgnoreCase("quarterly") |
@@ -86,4 +88,4 @@ public class SubscriptionBox {
 
     }
 }
-;
+

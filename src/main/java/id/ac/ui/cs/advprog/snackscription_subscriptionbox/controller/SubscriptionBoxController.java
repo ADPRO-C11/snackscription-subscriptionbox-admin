@@ -28,6 +28,7 @@ public class SubscriptionBoxController {
         this.jwtUtils = jwtUtils;
     }
 
+    // Being kept for debugging purposes
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionBoxController.class);
 
     private void validateToken(String token) throws IllegalAccessException {

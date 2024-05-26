@@ -36,7 +36,6 @@ public class DTOMapper {
         ).orElse(null);
 
         return new SubscriptionBoxFactory().create(
-                subscriptionBoxDTO.getId(),
                 subscriptionBoxDTO.getName(),
                 subscriptionBoxDTO.getType(),
                 subscriptionBoxDTO.getPrice(),
