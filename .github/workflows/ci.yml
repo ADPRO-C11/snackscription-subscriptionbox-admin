@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - staging_baru_lagi
+      - add-item-admin
 
 jobs:
   build:
