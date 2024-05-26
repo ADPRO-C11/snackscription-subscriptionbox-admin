@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface Factory <T> {
     T create();
-    T create(String id, String name, int quantity);
-    T create(String id, String name, String type, int price, List<Item> items );
+    T create(String id, String name, int quantity)
     T create(String id, String name, String type, int price, List<Item> items , String description);
 }

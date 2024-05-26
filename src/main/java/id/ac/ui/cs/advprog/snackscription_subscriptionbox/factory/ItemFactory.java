@@ -13,10 +13,6 @@ public class ItemFactory implements Factory<Item> {
         return  new Item(id, name, quantity);
     }
 
-    @Override
-    public Item create(String id, String name, String type, int price, List<Item> items) {
-        return null;
-    }
 }
 
 
