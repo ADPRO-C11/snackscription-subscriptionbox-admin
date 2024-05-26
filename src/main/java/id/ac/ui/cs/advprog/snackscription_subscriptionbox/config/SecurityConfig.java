@@ -28,6 +28,7 @@ public class SecurityConfig {
                         authorizeRequests
                                 .requestMatchers("/actuator/prometheus").permitAll() // Allow unauthenticated access
                                 .requestMatchers("/subscription-box/**", "/public/**").permitAll()
+                                .requestMatchers("/").permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JWTAuthFilter(jwtUtils), UsernamePasswordAuthenticationFilter.class);

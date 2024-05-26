@@ -28,7 +28,7 @@ class SubscriptionBoxFactoryTest {
         items.add(new Item());  // Assuming you have a constructor in Item class like this
         items.add(new Item());
 
-        SubscriptionBox subscriptionBox = subscriptionBoxFactory.create("1", "Deluxe Box", "MONTHLY", 150, items, "this is good yas");
+        SubscriptionBox subscriptionBox = subscriptionBoxFactory.create("Deluxe Box", "MONTHLY", 150, items, "this is good yas");
 
         assertEquals("Deluxe Box", subscriptionBox.getName());
         assertEquals("MONTHLY", subscriptionBox.getType());

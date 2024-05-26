@@ -7,6 +7,6 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     scrape_interval: 3s
     static_configs:
-      - targets: ['34.124.168.155:80']
+      - targets: ['host.docker.internal:80']
         labels:
           application: 'snackscription_subscriptionbox'

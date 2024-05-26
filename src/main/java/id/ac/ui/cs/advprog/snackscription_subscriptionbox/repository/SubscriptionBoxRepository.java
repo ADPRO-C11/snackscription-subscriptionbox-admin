@@ -1,8 +1,8 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository;
 
 
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
-import jakarta.transaction.TransactionScoped;
 import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import jakarta.persistence.EntityManager;
@@ -10,10 +10,6 @@ import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,9 +26,24 @@ public class SubscriptionBoxRepository {
         if (existsByNameAndType(subscriptionBox.getName(), subscriptionBox.getType())) {
             throw new IllegalArgumentException("Cannot save subscription box: a subscription box with the same name and type already exists.");
         }
+
+        List<Item> attachedItems = new ArrayList<>();
+        for (Item item : subscriptionBox.getItems()) {
+            Item existingItem = entityManager.find(Item.class, item.getId());
+            if (existingItem != null) {
+                attachedItems.add(existingItem);
+            } else {
+                // Persist new item
+                entityManager.persist(item);
+                attachedItems.add(item);
+            }
+        }
+        subscriptionBox.setItems(attachedItems);
+
         entityManager.persist(subscriptionBox);
         return subscriptionBox;
     }
+
 
     private boolean hasThreeSimilarNames(String name) {
         String jpql = "SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) LIKE LOWER(:name)";
@@ -52,33 +63,40 @@ public class SubscriptionBoxRepository {
     }
 
     @Transactional
-    public Optional<SubscriptionBox> findById(String id){
-        SubscriptionBox subscriptionBox = entityManager.find(SubscriptionBox.class, id);
-        return Optional.ofNullable(subscriptionBox);
+    public Optional<SubscriptionBox> findById(String id) {
+        String jpql = "SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.id = :id";
+        TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
+        query.setParameter("id", id);
+        return query.getResultStream().findFirst();
     }
 
     @Transactional
-    public List<SubscriptionBox> findAll(){
-        String jpql = "SELECT sb FROM SubscriptionBox sb";
+    public List<SubscriptionBox> findAll() {
+        String jpql = "SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items";
         TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
         return query.getResultList();
     }
 
     @Transactional
-    public SubscriptionBox update(SubscriptionBox subscriptionBox){
+    public SubscriptionBox update(SubscriptionBox subscriptionBox) {
         return entityManager.merge(subscriptionBox);
     }
-
     @Transactional
-    public void delete(String id){
-        SubscriptionBox subscription = findById(id)
+    public void delete(String id) {
+        SubscriptionBox subscriptionBox = findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Subscription Box ID not found"));
-        entityManager.remove(subscription);
+
+        // Clear the associations with items
+        subscriptionBox.getItems().clear();
+        entityManager.flush();
+
+        // Now remove the subscription box
+        entityManager.remove(subscriptionBox);
     }
 
     @Transactional
     public List<SubscriptionBox> findByPriceLessThan(int price) {
-        String jpql = "SELECT sb FROM SubscriptionBox sb WHERE sb.price < :price";
+        String jpql = "SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.price < :price";
         TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
         query.setParameter("price", price);
         return query.getResultList();
@@ -86,7 +104,7 @@ public class SubscriptionBoxRepository {
 
     @Transactional
     public List<SubscriptionBox> findByPriceGreaterThan(int price) {
-        String jpql = "SELECT sb FROM SubscriptionBox sb WHERE sb.price > :price";
+        String jpql = "SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.price > :price";
         TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
         query.setParameter("price", price);
         return query.getResultList();
@@ -94,7 +112,7 @@ public class SubscriptionBoxRepository {
 
     @Transactional
     public List<SubscriptionBox> findByPriceEquals(int price) {
-        String jpql = "SELECT sb FROM SubscriptionBox sb WHERE sb.price = :price";
+        String jpql = "SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.price = :price";
         TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
         query.setParameter("price", price);
         return query.getResultList();
@@ -102,7 +120,7 @@ public class SubscriptionBoxRepository {
 
     @Transactional
     public Optional<List<SubscriptionBox>> findByName(String name) {
-        String jpql = "SELECT sb FROM SubscriptionBox sb WHERE LOWER(sb.name) LIKE LOWER(:name)";
+        String jpql = "SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE LOWER(sb.name) LIKE LOWER(:name)";
         TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
         query.setParameter("name", "%" + name.toLowerCase() + "%"); // Convert input name to lowercase
         List<SubscriptionBox> result = query.getResultList();

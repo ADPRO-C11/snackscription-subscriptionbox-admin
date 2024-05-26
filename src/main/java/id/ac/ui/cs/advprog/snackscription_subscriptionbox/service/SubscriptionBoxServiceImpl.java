@@ -9,10 +9,13 @@ import java.util.stream.Collectors;
 
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.DTOMapper;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository.LogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.LogAdmin;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository.SubscriptionBoxRepository;
 
@@ -20,7 +23,8 @@ import id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository.Subscriptio
 public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
     @Autowired
     private SubscriptionBoxRepository subscriptionBoxRepository;
-
+   @Autowired
+    private LogRepository logRepository;
     @Override
     @Async
     public CompletableFuture<SubscriptionBox> save(SubscriptionBoxDTO subscriptionBoxDTO) {
@@ -34,31 +38,25 @@ public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
 
     @Override
     @Async
-    public CompletableFuture<Optional<SubscriptionBoxDTO>> findById(String id) {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("ID cannot be null or empty");
-        }
-
-        return subscriptionBoxRepository.findById(id)
-                .map(subscriptionBox -> CompletableFuture.completedFuture(Optional.of(DTOMapper.convertModelToDto(subscriptionBox))))
-                .orElse(CompletableFuture.completedFuture(Optional.empty()));
-//
+    public CompletableFuture<Optional<SubscriptionBox>> findById(String id) {
+        Optional<SubscriptionBox> subscriptionBox = subscriptionBoxRepository.findById(id);
+        return CompletableFuture.completedFuture(subscriptionBox);
     }
+
 
     @Override
     @Async
-    public CompletableFuture<List<SubscriptionBox>> findAll() {
+    public CompletableFuture<List<SubscriptionBoxDTO>> findAll() {
         List<SubscriptionBox> subscriptionBoxes = subscriptionBoxRepository.findAll();
-        return CompletableFuture.completedFuture(subscriptionBoxes);
+        List<SubscriptionBoxDTO> dtos = subscriptionBoxes.stream()
+                .map(DTOMapper::convertModelToDto)
+                .collect(Collectors.toList());
+        return CompletableFuture.completedFuture(dtos);
     }
 
     @Override
     @Async
     public CompletableFuture<SubscriptionBox> update(SubscriptionBoxDTO subscriptionBoxDTO) {
-//        if (subscriptionBox == null) {
-//            throw new IllegalArgumentException("SubscriptionBox cannot be null");
-//        }
-//        return CompletableFuture.completedFuture(subscriptionBoxRepository.update(subscriptionBox));
         if (subscriptionBoxDTO == null) {
             throw new IllegalArgumentException("Subscription cannot be null");
         }
@@ -66,10 +64,10 @@ public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
         return subscriptionBoxRepository.findById(subscriptionBoxDTO.getId())
                 .map(subscriptionBox -> {
                     DTOMapper.updateSubscriptionBox(subscriptionBox, subscriptionBoxDTO);
-                    return CompletableFuture.completedFuture(subscriptionBoxRepository.update(subscriptionBox));
+                    subscriptionBox = subscriptionBoxRepository.update(subscriptionBox);
+                    return CompletableFuture.completedFuture(subscriptionBox);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Subscription isn't found"));
-
     }
 
     @Override
@@ -82,6 +80,7 @@ public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
         if (subscriptionBoxRepository.findById(id).isEmpty()) {
             throw new IllegalArgumentException("Subscription Box not found");
         }
+        CompletableFuture.runAsync(() -> logUpdateStatus(id, "DELETE"));
         subscriptionBoxRepository.delete(id);
         return CompletableFuture.completedFuture(null);
     }
@@ -132,6 +131,21 @@ public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
         Optional<List<String>> distinctNames = subscriptionBoxRepository.findDistinctNames();
         return CompletableFuture.completedFuture(distinctNames);
     }
+
+
+    public void logUpdateStatus(String id, String status) {
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+        String logString = "Berhasil melakukan" +status + "terhadap Subscription Box dengan ID" + id + " pada " + date;
+
+        LogAdmin log = new LogAdmin(logString, id);
+
+        logRepository.save(log);
+    }
+    @Async
+    public CompletableFuture<List<LogAdmin>> getLog() {
+        return logRepository.findAllByOrderByDateDesc();
+    }
+
 
 
 }

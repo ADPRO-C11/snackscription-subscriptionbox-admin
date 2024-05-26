@@ -1,18 +1,17 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.controller;
 
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.DTOMapper;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.LogAdmin;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.utils.JWTUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.DTOMapper;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.service.SubscriptionBoxService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -21,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 @RequestMapping("/subscription-box")
 @CrossOrigin(origins = "*") // Change to specific origin if needed
 public class SubscriptionBoxController {
+
     private final JWTUtils jwtUtils;
     private final SubscriptionBoxService subscriptionBoxService;
 
@@ -29,6 +29,7 @@ public class SubscriptionBoxController {
         this.jwtUtils = jwtUtils;
     }
 
+    // Being kept for debugging purposes
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionBoxController.class);
 
     private void validateToken(String token) throws IllegalAccessException {
@@ -46,8 +47,7 @@ public class SubscriptionBoxController {
     }
 
     @GetMapping("")
-    public ResponseEntity<String> main(@RequestHeader(value = "Authorization") String token) throws IllegalAccessException {
-        validateToken(token);
+    public ResponseEntity<String> main(){
         return ResponseEntity.ok("Snackscription - SubscriptionBox Management API by ADMIN only!");
     }
 
@@ -60,7 +60,7 @@ public class SubscriptionBoxController {
     }
 
     @GetMapping("/list")
-    public CompletableFuture<ResponseEntity<List<SubscriptionBox>>> findAll(@RequestHeader(value = "Authorization") String token) throws IllegalAccessException {
+    public CompletableFuture<ResponseEntity<List<SubscriptionBoxDTO>>> findAll(@RequestHeader(value = "Authorization") String token) throws IllegalAccessException {
         validateToken(token);
         return subscriptionBoxService.findAll()
                 .thenApply(ResponseEntity::ok);
@@ -95,7 +95,8 @@ public class SubscriptionBoxController {
 
         return subscriptionBoxService.findById(id)
                 .thenApply(optionalSubscriptionBox ->
-                        optionalSubscriptionBox.map(ResponseEntity::ok)
+                        optionalSubscriptionBox
+                                .map(subscriptionBox -> ResponseEntity.ok(DTOMapper.convertModelToDto(subscriptionBox)))
                                 .orElse(ResponseEntity.notFound().build()));
     }
 
@@ -120,7 +121,6 @@ public class SubscriptionBoxController {
                 .thenApply(ResponseEntity::ok);
     }
 
-
     @GetMapping("/price/greater-than/{price}")
     public CompletableFuture<ResponseEntity<List<SubscriptionBoxDTO>>> findByPriceGreaterThan(@RequestHeader(value = "Authorization") String token, @PathVariable int price) throws IllegalAccessException {
         validateToken(token);
@@ -143,10 +143,19 @@ public class SubscriptionBoxController {
                 .thenApply(ResponseEntity::ok);
     }
 
+
     @GetMapping("/distinct-names")
     public CompletableFuture<ResponseEntity<Optional<List<String>>>> findDistinctNames(@RequestHeader(value = "Authorization") String token) throws IllegalAccessException {
         validateToken(token);
         return subscriptionBoxService.findDistinctNames()
                 .thenApply(ResponseEntity::ok);
+    }
+
+    @GetMapping("/logs")
+    public CompletableFuture<ResponseEntity<List<LogAdmin>>> updateSubscriptionBox(@RequestHeader(value = "Authorization") String token) throws IllegalAccessException {
+        validateAdminOnly(token);
+        return subscriptionBoxService.getLog()
+                .thenApply(ResponseEntity::ok)
+                .exceptionally(ex -> ResponseEntity.notFound().build());
     }
 }

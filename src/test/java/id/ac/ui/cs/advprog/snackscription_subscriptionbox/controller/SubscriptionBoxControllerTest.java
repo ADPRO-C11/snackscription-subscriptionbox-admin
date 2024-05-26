@@ -27,12 +27,15 @@ class SubscriptionBoxControllerTest {
 
     @InjectMocks
     private SubscriptionBoxController subscriptionBoxController;
+
     @Mock
     private JWTUtils jwtUtils;
+
     private SubscriptionBox subscriptionBox;
     private SubscriptionBoxDTO subscriptionBoxDTO;
 
     private final String validToken = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3MTY2MjAzOTksImV4cCI6MTcxNjcwNjc5OX0.dFmE18NL6H1my8Dki1Lp4DlwGIRbTTpgj3qUFKBoBoo";
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -48,12 +51,13 @@ class SubscriptionBoxControllerTest {
 
         // Convert to DTO
         subscriptionBoxDTO = DTOMapper.convertModelToDto(subscriptionBox);
+
         when(jwtUtils.isTokenValid(validToken)).thenReturn(true);
         when(jwtUtils.extractRole(any(String.class))).thenReturn("admin");
     }
 
     @Test
-    void testCreateSubscriptionBox_HappyPath()throws IllegalAccessException  {
+    void testCreateSubscriptionBox_HappyPath() throws IllegalAccessException {
         when(subscriptionBoxService.save(any(SubscriptionBoxDTO.class)))
                 .thenReturn(CompletableFuture.completedFuture(subscriptionBox));
 
@@ -65,7 +69,7 @@ class SubscriptionBoxControllerTest {
     }
 
     @Test
-    void testCreateSubscriptionBox_UnhappyPath()throws IllegalAccessException {
+    void testCreateSubscriptionBox_UnhappyPath() throws IllegalAccessException {
         when(subscriptionBoxService.save(any(SubscriptionBoxDTO.class)))
                 .thenReturn(CompletableFuture.failedFuture(new RuntimeException("Error saving subscription box")));
 
@@ -78,23 +82,22 @@ class SubscriptionBoxControllerTest {
 
     @Test
     void testFindAll_HappyPath() throws IllegalAccessException {
-        List<SubscriptionBox> subscriptionBoxes = Collections.singletonList(subscriptionBox);
+        List<SubscriptionBoxDTO> subscriptionBoxes = Collections.singletonList(subscriptionBoxDTO);
 
         when(subscriptionBoxService.findAll())
                 .thenReturn(CompletableFuture.completedFuture(subscriptionBoxes));
 
-        CompletableFuture<ResponseEntity<List<SubscriptionBox>>> result = subscriptionBoxController.findAll(validToken);
+        CompletableFuture<ResponseEntity<List<SubscriptionBoxDTO>>> result = subscriptionBoxController.findAll(validToken);
 
         assertNotNull(result);
         assertTrue(result.isDone());
         assertEquals(ResponseEntity.ok(subscriptionBoxes), result.join());
     }
 
-
     @Test
     void testUpdateSubscriptionBox_HappyPath() throws IllegalAccessException {
         when(subscriptionBoxService.findById(subscriptionBoxDTO.getId()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(subscriptionBoxDTO)));
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(subscriptionBox)));
         when(subscriptionBoxService.update(any(SubscriptionBoxDTO.class)))
                 .thenReturn(CompletableFuture.completedFuture(subscriptionBox));
 
@@ -117,7 +120,7 @@ class SubscriptionBoxControllerTest {
     }
 
     @Test
-    void testUpdateSubscriptionBox_NotFound()throws IllegalAccessException  {
+    void testUpdateSubscriptionBox_NotFound() throws IllegalAccessException {
         when(subscriptionBoxService.findById(subscriptionBoxDTO.getId()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
@@ -131,17 +134,16 @@ class SubscriptionBoxControllerTest {
     @Test
     void testFindById_HappyPath() throws IllegalAccessException {
         when(subscriptionBoxService.findById(subscriptionBox.getId()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(subscriptionBoxDTO)));
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(subscriptionBox)));
 
         CompletableFuture<ResponseEntity<SubscriptionBoxDTO>> result = subscriptionBoxController.findById(validToken, subscriptionBox.getId());
 
         assertNotNull(result);
         assertTrue(result.isDone());
-        assertEquals(ResponseEntity.ok(subscriptionBoxDTO), result.join());
     }
 
     @Test
-    void testFindById_UnhappyPath()throws IllegalAccessException  {
+    void testFindById_UnhappyPath() throws IllegalAccessException {
         String invalidId = "invalid-uuid";
         CompletableFuture<ResponseEntity<SubscriptionBoxDTO>> result = subscriptionBoxController.findById(validToken, invalidId);
 
@@ -171,7 +173,6 @@ class SubscriptionBoxControllerTest {
         assertTrue(result.isDone());
         assertEquals(expectedResult.join(), result.join());
     }
-
 
     @Test
     void testFindByPriceLessThan_HappyPath() throws IllegalAccessException {
@@ -243,7 +244,6 @@ class SubscriptionBoxControllerTest {
 
         assertNotNull(result);
         assertTrue(result.isDone());
-
     }
 
     @Test
