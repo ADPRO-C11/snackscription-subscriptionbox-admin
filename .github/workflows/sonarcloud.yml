@@ -1,51 +1,40 @@
 name: SonarCloud Analysis
 on:
+  # Trigger analysis when pushing in master or pull requests, and when creating
+  # a pull request.
   push:
   pull_request:
 
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - name: Replace placeholders in application-prod.properties
-        run: |
-          sed -i 's|${PRODUCTION}|'"${{ secrets.PRODUCTION }}"'|g' src/main/resources/application.properties
-          sed -i 's|${JDBC_DATABASE_URL}|'"${{ secrets.JDBC_DATABASE_URL }}"'|g' src/main/resources/application-prod.properties
-          sed -i 's|${JDBC_DATABASE_USERNAME}|'"${{ secrets.JDBC_DATABASE_USERNAME }}"'|g' src/main/resources/application-prod.properties
-          sed -i 's|${JDBC_DATABASE_PASSWORD}|'"${{ secrets.JDBC_DATABASE_PASSWORD }}"'|g' src/main/resources/application-prod.properties
-          sed -i 's|${JWT_SECRET}|'"${{ secrets.JWT_SECRET }}"'|g' src/main/resources/application-prod.properties
-
       - name: Check out the Git repository
         uses: actions/checkout@v4
         with:
           # Shallow clones should be disabled for a better relevancy of analysis
           fetch-depth: 0
-
       - name: Set up Java Toolchain
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
           java-version: "21"
           cache: "gradle"
-
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
-
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-
       - name: Set gradlew as executable
         run: chmod +x ./gradlew
-
       - name: Build and analyze
         run: ./gradlew build jacocoTestReport sonar --info
         env:
