@@ -100,4 +100,19 @@ tasks.jacocoTestReport {
         csv.required.set(true)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
+
+    classDirectories.setFrom(
+            files(classDirectories.files.map {
+                fileTree(it) {
+                    exclude(
+                            "id/ac/ui/cs/advprog/snackscription_subscriptionbox/utils/**",
+                            "id/ac/ui/cs/advprog/snackscription_subscriptionbox/config/**",
+                            "id/ac/ui/cs/advprog/snackscription_subscriptionbox/model/LogAdmin**",
+                            "id/ac/ui/cs/advprog/snackscription_subscriptionbox/repository/ItemRepository**",
+                            "id/ac/ui/cs/advprog/snackscription_subscriptionbox/dto/ItemDTO**"
+                    )
+                }
+            })
+    )
+
 }

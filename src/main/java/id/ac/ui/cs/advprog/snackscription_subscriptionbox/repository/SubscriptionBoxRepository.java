@@ -18,30 +18,39 @@ public class SubscriptionBoxRepository {
     @Autowired
     private EntityManager entityManager;
 
+
     @Transactional
     public SubscriptionBox save(SubscriptionBox subscriptionBox) {
+        validateSubscriptionBox(subscriptionBox);
+
+        List<Item> attachedItems = attachItems(subscriptionBox.getItems());
+        subscriptionBox.setItems(attachedItems);
+
+        entityManager.persist(subscriptionBox);
+        return subscriptionBox;
+    }
+
+    private void validateSubscriptionBox(SubscriptionBox subscriptionBox) {
         if (hasThreeSimilarNames(subscriptionBox.getName())) {
             throw new IllegalArgumentException("Cannot save subscription box: more than 3 subscription boxes with similar names already exist.");
         }
         if (existsByNameAndType(subscriptionBox.getName(), subscriptionBox.getType())) {
             throw new IllegalArgumentException("Cannot save subscription box: a subscription box with the same name and type already exists.");
         }
+    }
 
+    private List<Item> attachItems(List<Item> items) {
         List<Item> attachedItems = new ArrayList<>();
-        for (Item item : subscriptionBox.getItems()) {
+        for (Item item : items) {
             Item existingItem = entityManager.find(Item.class, item.getId());
             if (existingItem != null) {
                 attachedItems.add(existingItem);
             } else {
-                // Persist new item
                 entityManager.persist(item);
                 attachedItems.add(item);
             }
         }
-        subscriptionBox.setItems(attachedItems);
-
-        entityManager.persist(subscriptionBox);
-        return subscriptionBox;
+        return attachedItems;
     }
 
 
