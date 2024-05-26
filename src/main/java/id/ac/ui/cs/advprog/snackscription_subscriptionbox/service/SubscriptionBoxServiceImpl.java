@@ -46,7 +46,7 @@ public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
         return subscriptionBoxRepository.findById(id)
                 .map(subscriptionBox -> CompletableFuture.completedFuture(Optional.of(DTOMapper.convertModelToDto(subscriptionBox))))
                 .orElse(CompletableFuture.completedFuture(Optional.empty()));
-//
+
     }
 
     @Override
@@ -59,10 +59,7 @@ public class SubscriptionBoxServiceImpl implements SubscriptionBoxService {
     @Override
     @Async
     public CompletableFuture<SubscriptionBox> update(SubscriptionBoxDTO subscriptionBoxDTO) {
-//        if (subscriptionBox == null) {
-//            throw new IllegalArgumentException("SubscriptionBox cannot be null");
-//        }
-//        return CompletableFuture.completedFuture(subscriptionBoxRepository.update(subscriptionBox));
+
         if (subscriptionBoxDTO == null) {
             throw new IllegalArgumentException("Subscription cannot be null");
         }

@@ -4,16 +4,13 @@ import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.LogAdmin;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.utils.JWTUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.DTOMapper;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.service.SubscriptionBoxService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;

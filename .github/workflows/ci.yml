@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - staging_new
+      - subbox-management
 
 jobs:
   build:

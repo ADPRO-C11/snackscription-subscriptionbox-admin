@@ -3,7 +3,6 @@ package id.ac.ui.cs.advprog.snackscription_subscriptionbox.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,7 +37,6 @@ public class SubscriptionBox {
 
     @Column(name = "box_description")
     String description;
-    // Rating rating;
 
     public SubscriptionBox(){
         this.id = UUID.randomUUID().toString();

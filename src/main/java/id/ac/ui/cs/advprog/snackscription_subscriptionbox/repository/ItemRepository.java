@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository;
 
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
-import lombok.Getter;
 import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;

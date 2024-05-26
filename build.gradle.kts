@@ -6,6 +6,14 @@ plugins {
     id("org.sonarqube") version "4.4.1.3373"
 }
 
+sonar {
+    properties {
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.organization","adpro-c11")
+        property("sonar.projectKey", "ADPRO-C11_snackscription-subscriptionbox-admin")
+    }
+}
+
 group = "snackscription"
 version = "0.0.1-SNAPSHOT"
 

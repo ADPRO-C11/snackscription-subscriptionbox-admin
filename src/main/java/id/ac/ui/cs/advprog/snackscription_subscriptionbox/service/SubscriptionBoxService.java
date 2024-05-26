@@ -5,7 +5,7 @@ import java.util.List;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto.SubscriptionBoxDTO;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.LogAdmin;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
-import org.springframework.scheduling.annotation.Async;
+
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -33,11 +33,4 @@ public interface SubscriptionBoxService {
     CompletableFuture<List<LogAdmin>> getLog();
 
 
-//    public SubscriptionBox addBox(SubscriptionBox subscriptionBox);
-//    public SubscriptionBox editBox(String id, SubscriptionBox subscriptionBox);
-//    public SubscriptionBox deleteBox(String id);
-//    public List<SubscriptionBox> viewAll();
-//    public String viewDetails(String boxId);
-//    public List<SubscriptionBox> filterByPrice(int price);
-//    // public List<SubscriptionBox> filterByRating(int rating);
 }

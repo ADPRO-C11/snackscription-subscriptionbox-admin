@@ -3,7 +3,6 @@ package id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository;
 
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
-import jakarta.transaction.TransactionScoped;
 import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import jakarta.persistence.EntityManager;
@@ -11,10 +10,6 @@ import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 

@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.dto;
 
 import lombok.*;
-import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
 
 import java.util.List;
 
