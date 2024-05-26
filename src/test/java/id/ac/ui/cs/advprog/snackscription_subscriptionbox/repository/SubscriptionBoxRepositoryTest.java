@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.snackscription_subscriptionbox.repository;
 
-import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
+
 import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -177,7 +177,7 @@ class SubscriptionBoxRepositoryTest {
         List<SubscriptionBox> result = subscriptionBoxRepository.findByPriceGreaterThan(150);
 
         assertEquals(1, result.size());
-        assertEquals(subscriptionBox2, result.get(0));
+        assertEquals(subscriptionBox2, result.getFirst());
         verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.price > :price", SubscriptionBox.class);
         verify(query, times(1)).setParameter("price", 150);
         verify(query, times(1)).getResultList();
@@ -204,19 +204,19 @@ class SubscriptionBoxRepositoryTest {
     @Test
     void testFindByName() {
         SubscriptionBox subscriptionBox1 = new SubscriptionBox("Basic Box", "Monthly", 100, null, "Basic monthly subscription box");
-        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Premium Box", "Monthly", 200, null, "Premium monthly subscription box");
+        SubscriptionBox subscriptionBox2 = new SubscriptionBox("Basic Box", "Quarterly", 200, null, "Premium monthly subscription box");
 
         TypedQuery<SubscriptionBox> query = mock(TypedQuery.class);
-        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE LOWER(sb.name) LIKE LOWER(:name)", SubscriptionBox.class)).thenReturn(query);
-        when(query.setParameter("name", "%box%")).thenReturn(query);
+        when(entityManager.createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.name = :name", SubscriptionBox.class)).thenReturn(query);
+        when(query.setParameter("name", "Basic Box")).thenReturn(query);
         when(query.getResultList()).thenReturn(Arrays.asList(subscriptionBox1, subscriptionBox2));
 
-        Optional<List<SubscriptionBox>> result = subscriptionBoxRepository.findByName("box");
+        Optional<List<SubscriptionBox>> result = subscriptionBoxRepository.findByName("Basic Box");
 
         assertTrue(result.isPresent());
         assertEquals(2, result.get().size());
-        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE LOWER(sb.name) LIKE LOWER(:name)", SubscriptionBox.class);
-        verify(query, times(1)).setParameter("name", "%box%");
+        verify(entityManager, times(1)).createQuery("SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.name = :name", SubscriptionBox.class);
+        verify(query, times(1)).setParameter("name", "Basic Box");
         verify(query, times(1)).getResultList();
     }
 

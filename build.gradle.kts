@@ -109,6 +109,8 @@ tasks.jacocoTestReport {
                             "id/ac/ui/cs/advprog/snackscription_subscriptionbox/config/**",
                             "id/ac/ui/cs/advprog/snackscription_subscriptionbox/model/LogAdmin**",
                             "id/ac/ui/cs/advprog/snackscription_subscriptionbox/repository/ItemRepository**",
+                            "id/ac/ui/cs/advprog/snackscription_subscriptionbox/service/ItemServiceImpl**",
+                            "id/ac/ui/cs/advprog/snackscription_subscriptionbox/controller/ItemController**",
                             "id/ac/ui/cs/advprog/snackscription_subscriptionbox/dto/ItemDTO**"
                     )
                 }
