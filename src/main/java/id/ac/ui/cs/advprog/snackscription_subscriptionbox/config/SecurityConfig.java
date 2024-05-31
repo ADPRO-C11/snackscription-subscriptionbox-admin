@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/actuator/prometheus").permitAll() // Allow unauthenticated access
-                                .requestMatchers("/subscription-box/**", "/public/**").permitAll()
+                                .requestMatchers("/subscription-box/**", "/items/**", "/public/**").permitAll()
                                 .requestMatchers("/").permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

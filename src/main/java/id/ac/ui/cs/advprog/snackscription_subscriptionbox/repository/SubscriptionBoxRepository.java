@@ -129,9 +129,9 @@ public class SubscriptionBoxRepository {
 
     @Transactional
     public Optional<List<SubscriptionBox>> findByName(String name) {
-        String jpql = "SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE LOWER(sb.name) LIKE LOWER(:name)";
+        String jpql = "SELECT sb FROM SubscriptionBox sb LEFT JOIN FETCH sb.items WHERE sb.name = :name";
         TypedQuery<SubscriptionBox> query = entityManager.createQuery(jpql, SubscriptionBox.class);
-        query.setParameter("name", "%" + name.toLowerCase() + "%"); // Convert input name to lowercase
+        query.setParameter("name",  name ); // Convert input name to lowercase
         List<SubscriptionBox> result = query.getResultList();
         return Optional.ofNullable(result.isEmpty() ? null : result);
     }

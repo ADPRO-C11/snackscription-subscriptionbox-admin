@@ -4,37 +4,31 @@ import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
 import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.Item;
+import id.ac.ui.cs.advprog.snackscription_subscriptionbox.model.SubscriptionBox;
+import org.springframework.stereotype.Repository;
+import java.util.ArrayList;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ItemRepository {
-    private List<Item> items = new ArrayList<>();
-    public Item createItem(Item item) {
-        items.add(item);
-        return item;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @Transactional
+    public List<Item> findAll() {
+        String jpql = "SELECT i FROM Item i";
+        TypedQuery<Item> query = entityManager.createQuery(jpql, Item.class);
+        return query.getResultList();
     }
 
-    public Item getItemById(String id) {
-        for (Item item : items) {
-            if (item.getId().equals(id)) {
-                return item;
-            }
-        }
-        return null;
-    }
-    public Item deleteItem(Item item) {
-        items.remove(item);
-        return item;
-    }
-    public Item editItem(Item item) {
-        for (Item itemToEdit : items) {
-            if (item.getId().equals(item.getId())) {
-                itemToEdit = item;
-                return itemToEdit;
-            }
-        }
-        return null;
-    }
 }
 
 
